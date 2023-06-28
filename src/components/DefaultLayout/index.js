@@ -29,7 +29,7 @@ const DefaultLayout = () => {
 	const logout = () => {
 		localStorage.removeItem('token');
 		localStorage.removeItem('user');
-		toast.success('Đăng nhập thành công!', {
+		toast.success('Đăng xuất thành công!', {
 			position: 'top-right',
 			autoClose: 3000,
 			hideProgressBar: false,
