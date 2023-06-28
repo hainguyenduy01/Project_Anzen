@@ -1,0 +1,75 @@
+.logo_sidebar {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px 0 20px 0;
+}
+.logo_sidebar-text {
+	line-height: 32px;
+	font-size: 18px;
+	color: #f42323;
+	font-weight: 700;
+	margin-left: 12px;
+}
+
+.ant-layout-sider-children {
+	background-color: #ccc;
+}
+.ant-menu {
+	background-color: #ccc;
+}
+.ant-menu-item-selected {
+	color: #f42323 !important;
+	font-weight: bold;
+	background-color: #fff !important;
+}
+.ant-menu-item {
+	font-weight: bold;
+	border-radius: 0 !important;
+	margin-inline: 0 !important;
+	width: 100% !important;
+}
+.ant-menu .ant-menu-item {
+	transition: all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) !important;
+}
+.ant-menu-item-selected {
+	border-inline-end: 3px solid #ffbd2f;
+}
+.ant-menu-vertical .ant-menu-item::after,
+.ant-menu-vertical-left .ant-menu-item::after,
+.ant-menu-vertical-right .ant-menu-item::after,
+.ant-menu-inline .ant-menu-item::after {
+	border-right: 3px solid #ffbd2f;
+}
+
+.ant-layout-sider-collapsed {
+	overflow: hidden;
+	flex: 0 0 48px;
+	max-width: 48px !important;
+	min-width: 48px !important;
+	width: 48px !important;
+}
+.trigger {
+	font-size: 16px;
+	/* padding-left: 10px; */
+	/* margin-top: 15px;
+	margin-left: 10px; */
+	padding: 20px;
+	height: 100%;
+}
+.header_login-top {
+	display: flex;
+	justify-content: space-between;
+	padding: 0 10px;
+	align-items: center;
+}
+.dropdown_user {
+	color: #fff;
+	font-size: 16px;
+	cursor: pointer;
+	font-weight: bold;
+}
+.ant-space-item {
+	display: flex;
+	align-items: center;
+}
