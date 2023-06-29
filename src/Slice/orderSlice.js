@@ -1,26 +1,52 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
 import {
 	deleteOrderService,
+	downloadAccountingService,
+	downloadLadingBillService,
 	filterPhoneCustomerService,
+	getAccountingService,
+	getAllDeliveryOrderService,
 	getDetailCustomerService,
 	getDetailOrderService,
-	getOrderService,
 	getSaleStaffService,
 	postOrderService,
 } from '../Services/orderService';
 const initialState = {
 	isloading: false,
-	listDeliveryOrder: [],
-	saleStaft: [],
-	shipperList: [],
-	filterPhoneShipper: [],
-	shiperDetail: [],
-	detailDeliveryOrder: [],
+	listDeliveryOrder: {},
+	listAccounting: {},
 };
-export const getOrderAsync = createAsyncThunk('getOrder', async (params) => {
-	const response = await getOrderService(params);
-	return response.data;
-});
+export const getAllDeliveryOrder = createAsyncThunk(
+	'getAllDeliveryOrder',
+	async (params) => {
+		const response = await getAllDeliveryOrderService(params);
+		return response.data.result;
+	},
+);
+export const getDetailAccounting = createAsyncThunk(
+	'getDetailAccounting',
+	async (id) => {
+		const response = await getAccountingService(id);
+		return response.data;
+	},
+);
+export const downloadAccountingAsync = createAsyncThunk(
+	'downloadAccounting',
+	async (id) => {
+		const response = await downloadAccountingService(id);
+
+		return response.data;
+	},
+);
+export const downloadLadingBillAsync = createAsyncThunk(
+	'downloadLadingBill',
+	async (id) => {
+		const response = await downloadLadingBillService(id);
+
+		return response.data;
+	},
+);
 export const postOrderAsync = createAsyncThunk(
 	'postDeliveryOrder',
 	async (params) => {
@@ -60,18 +86,60 @@ export const getDetailOrderAsync = createAsyncThunk(
 		return response.data;
 	},
 );
-export const Order = createSlice({
-	name: 'Order',
+export const orderSlice = createSlice({
+	name: 'orderDelivery',
 	initialState,
 	reducers: {},
 	extraReducers: (builder) => {
 		builder
-			.addCase(getOrderAsync.pending, (state) => {
+			.addCase(getAllDeliveryOrder.pending, (state) => {
 				state.isloading = true;
 			})
-			.addCase(getOrderAsync.fulfilled, (state, action) => {
+			.addCase(getAllDeliveryOrder.fulfilled, (state, action) => {
 				if (action.payload) {
 					state.listDeliveryOrder = action.payload;
+					state.isloading = false;
+				}
+			})
+			.addCase(getDetailAccounting.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(getDetailAccounting.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.listAccounting = action.payload;
+					state.isloading = false;
+				}
+			})
+			.addCase(downloadAccountingAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(downloadAccountingAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					const href = URL.createObjectURL(action.payload);
+
+					const link = document.createElement('a');
+					link.href = href;
+					link.setAttribute('download', `ketoan.pdf`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					URL.revokeObjectURL(href);
+					state.isloading = false;
+				}
+			})
+			.addCase(downloadLadingBillAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(downloadLadingBillAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					const href = URL.createObjectURL(action.payload);
+					const link = document.createElement('a');
+					link.href = href;
+					link.setAttribute('download', `vandon.pdf`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					URL.revokeObjectURL(href);
 					state.isloading = false;
 				}
 			})
@@ -126,9 +194,8 @@ export const Order = createSlice({
 			})
 			.addCase(deleteOrderAsync.fulfilled, (state, action) => {
 				state.isloading = false;
-        
 			});
 	},
 });
-export const selectOrder = (state) => state.Order;
-export default Order.reducer;
+export const selectOrder = (state) => state.orderDelivery;
+export default orderSlice.reducer;

@@ -41,7 +41,9 @@
 .ant-menu-inline .ant-menu-item::after {
 	border-right: 3px solid #ffbd2f;
 }
-
+.ant-layout {
+	height: 100vh;
+}
 .ant-layout-sider-collapsed {
 	overflow: hidden;
 	flex: 0 0 48px;
@@ -72,4 +74,36 @@
 .ant-space-item {
 	display: flex;
 	align-items: center;
+}
+.ant-layout-sider-children {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+table {
+	border: 1px solid #000;
+	/* border-radius: none !important; */
+}
+.ant-table-tbody > tr > td {
+	border-bottom: 1px solid #6c6c6c !important;
+}
+.ant-layout {
+	height: 100vh;
+	background: #fff;
+	display: flex;
+	flex: auto;
+	flex-direction: column;
+	width: 100%;
+}
+.ant-table-wrapper table {
+	border-radius: 0 !important;
+	overflow-x: scroll;
+}
+.ant-table-thead th {
+	border-radius: 0 !important;
+}
+@media screen and (max-width: 1024px) {
+	.table_container {
+		overflow-x: scroll;
+	}
 }

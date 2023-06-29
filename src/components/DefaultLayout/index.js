@@ -87,9 +87,23 @@ const DefaultLayout = () => {
 		},
 	];
 	return (
-		<div>
+		<div className="ant-basicLayout">
 			<Layout>
-				<Sider trigger={null} collapsible collapsed={collapsed}>
+				<Sider
+					trigger={null}
+					collapsible
+					collapsed={collapsed}
+					onCollapse={() => setCollapsed(!collapsed)}
+					theme="light"
+					style={{
+						overflow: 'auto',
+						height: '100vh',
+						position: 'fixed',
+						left: 0,
+						top: 0,
+						bottom: 0,
+					}}
+				>
 					<Link to="/home" className="logo_sidebar text-decoration-none">
 						<img src={logo} width={33} height={33} alt="logo" />
 						<h3
@@ -99,14 +113,21 @@ const DefaultLayout = () => {
 							ANZEN
 						</h3>
 					</Link>
-					<Menu
-						mode="inline"
-						defaultSelectedKeys={'/home'}
-						onClick={({ key }) => navigate(key)}
-						items={listNavMenu}
-					/>
+					<div style={{ flex: '1 1 0%', overflow: 'hidden auto' }}>
+						<Menu
+							mode="inline"
+							defaultSelectedKeys={'/home'}
+							onClick={({ key }) => navigate(key)}
+							items={listNavMenu}
+						/>
+					</div>
 				</Sider>
-				<Layout>
+				<Layout
+					style={{
+						marginLeft: collapsed ? '48px' : '200px',
+						transition: 'all 0.2s',
+					}}
+				>
 					<Header
 						style={{
 							padding: 0,
@@ -133,9 +154,8 @@ const DefaultLayout = () => {
 					</Header>
 					<Content
 						style={{
-							margin: '24px 16px',
-							padding: 24,
-							height: '100vh',
+							margin: '24px',
+							overflow: 'initial',
 						}}
 					>
 						<Home />
