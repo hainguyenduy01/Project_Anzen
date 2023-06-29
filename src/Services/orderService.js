@@ -1,9 +1,9 @@
 import request from '../Utils/request';
-import stringify from 'query-string';
+import queryString from 'query-string';
 // getDeliveryOrderService
-export const getOrderService = (params) => {
+export const getAllDeliveryOrderService = (params) => {
 	return request(
-		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders?${stringify(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders?${queryString.stringify(
 			params,
 		)}`,
 		{
@@ -31,7 +31,7 @@ export const getSaleStaffService = () => {
 // filterPhoneShipperService
 export const filterPhoneCustomerService = (params) => {
 	return request(
-		`https://api-uat-anzen-tms.azurewebsites.net/api/Customers/search-by-phone?${stringify(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/Customers/search-by-phone?${queryString.stringify(
 			params,
 		)}`,
 		{
@@ -64,6 +64,32 @@ export const getDetailOrderService = (id) => {
 		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/${id}`,
 		{
 			method: 'GET',
+		},
+	);
+};
+export const getAccountingService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/accounting/${id}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const downloadAccountingService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/export-accounting/${id}`,
+		{
+			method: 'GET',
+			responseType: 'blob',
+		},
+	);
+};
+export const downloadLadingBillService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/export-receipt/${id}`,
+		{
+			method: 'GET',
+			responseType: 'blob',
 		},
 	);
 };

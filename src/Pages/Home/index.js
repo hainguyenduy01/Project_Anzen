@@ -7,7 +7,7 @@ import Register from '../Register';
 import Customers from '../Customers';
 const Home = () => {
 	return (
-		<div>
+		<div className="table_container">
 			<Routes>
 				<Route path="/" element={<OrderArea />} />
 				<Route path="/home" element={<OrderArea />} />
