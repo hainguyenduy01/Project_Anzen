@@ -94,7 +94,7 @@ export const getDetailOrderAsync = createAsyncThunk(
 	},
 );
 export const orderSlice = createSlice({
-	name: 'orderDelivery',
+	name: 'order',
 	initialState,
 	reducers: {},
 	extraReducers: (builder) => {
@@ -227,5 +227,5 @@ export const orderSlice = createSlice({
 			});
 	},
 });
-export const selectOrder = (state) => state.orderDelivery;
+export const selectOrder = (state) => state.order;
 export default orderSlice.reducer;
