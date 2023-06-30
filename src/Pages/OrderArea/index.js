@@ -20,7 +20,7 @@ import {
 	Tooltip,
 } from 'antd';
 import './index.css';
-import moment from 'moment/moment';
+import moment from 'moment';
 import { DeleteOutlined, EditOutlined, FundOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 
