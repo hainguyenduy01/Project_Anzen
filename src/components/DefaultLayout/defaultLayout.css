@@ -102,8 +102,7 @@ table {
 .ant-table-thead th {
 	border-radius: 0 !important;
 }
-@media screen and (max-width: 1024px) {
-	.table_container {
-		overflow-x: scroll;
-	}
+
+.table_container {
+	overflow: auto hidden;
 }

@@ -12,10 +12,16 @@ import {
 	getSaleStaffService,
 	postOrderService,
 } from '../Services/orderService';
+import { toast } from 'react-toastify';
 const initialState = {
 	isloading: false,
 	listDeliveryOrder: {},
 	listAccounting: {},
+	saleStaff: {},
+	shiperDetail: [],
+	filterPhoneShipper: [],
+	shipperList: [],
+	detailDeliveryOrder: [],
 };
 export const getAllDeliveryOrder = createAsyncThunk(
 	'getAllDeliveryOrder',
@@ -63,7 +69,8 @@ export const deleteOrderAsync = createAsyncThunk(
 );
 export const getSaleStaffAsync = createAsyncThunk('getSaleStaff', async () => {
 	const response = await getSaleStaffService();
-	return response.data;
+
+	return response.data.result;
 });
 export const filterPhoneCusomerAsync = createAsyncThunk(
 	'filterPhoneCustomer',
@@ -116,7 +123,6 @@ export const orderSlice = createSlice({
 			.addCase(downloadAccountingAsync.fulfilled, (state, action) => {
 				if (action.payload) {
 					const href = URL.createObjectURL(action.payload);
-
 					const link = document.createElement('a');
 					link.href = href;
 					link.setAttribute('download', `ketoan.pdf`);
@@ -125,6 +131,18 @@ export const orderSlice = createSlice({
 					document.body.removeChild(link);
 					URL.revokeObjectURL(href);
 					state.isloading = false;
+				} else {
+					state.isloading = false;
+					toast.success('Tiến hành tải xuống!', {
+						position: 'top-right',
+						autoClose: 3000,
+						hideProgressBar: false,
+						closeOnClick: true,
+						pauseOnHover: true,
+						draggable: false,
+						progress: undefined,
+						theme: 'light',
+					});
 				}
 			})
 			.addCase(downloadLadingBillAsync.pending, (state) => {
@@ -141,6 +159,18 @@ export const orderSlice = createSlice({
 					document.body.removeChild(link);
 					URL.revokeObjectURL(href);
 					state.isloading = false;
+				} else {
+					state.isloading = false;
+					toast.success('Tiến hành tải xuống!', {
+						position: 'top-right',
+						autoClose: 3000,
+						hideProgressBar: false,
+						closeOnClick: true,
+						pauseOnHover: true,
+						draggable: false,
+						progress: undefined,
+						theme: 'light',
+					});
 				}
 			})
 			//post deleveryOrder
@@ -157,7 +187,7 @@ export const orderSlice = createSlice({
 			})
 			.addCase(getSaleStaffAsync.fulfilled, (state, action) => {
 				if (action.payload) {
-					state.saleStaft = action.payload;
+					state.saleStaff = action.payload;
 					state.isloading = false;
 				}
 			})
