@@ -16,3 +16,9 @@
 	height: 100% !important;
 	width: fit-content !important;
 }
+.form__item .ant-row {
+	flex-direction: column;
+}
+.form__item .ant-row .ant-form-item-label {
+	text-align: left;
+}

@@ -1,4 +1,4 @@
-const PROVINCE = [
+export const PROVINCE = [
 	{ code: '076', name: 'An Giang' },
 	{ code: '064', name: 'Bà Rịa - Vũng Tàu' },
 	{ code: '781', name: 'Bạc Liêu' },
@@ -63,4 +63,40 @@ const PROVINCE = [
 	{ code: '211', name: '	Vĩnh Phúc' },
 	{ code: '029', name: 'Yên Bái' },
 ];
-export default PROVINCE;
+export const OPTION_STATUS = [
+	{ value: 'New', label: 'Đơn mới' },
+	{ value: 'Gone', label: 'Đơn hàng đã đi' },
+	{ value: 'Inventory', label: 'Đơn hàng tồn kho' },
+	{ value: 'Incurred', label: 'Đơn hàng có phát sinh' },
+];
+export const PAYMENT_TYPE = [
+	{ value: 'TTS', label: 'TTS' },
+	{ value: 'TDN', label: 'TĐN' },
+	{ value: 'DTT', label: 'ĐTT' },
+	{ value: 'Other', label: 'Khác' },
+];
+export const ORDER_ISDONE = [
+	{ value: true, label: 'Đơn hàng đã hoàn tất' },
+	{ value: false, label: 'Đơn hàng chưa hoàn tất' },
+];
+export const FORMATS_DATE = {
+	DD_MM_YYYY: 'DD/MM/YYYY',
+	YYYY_MM_DD: 'YYYY-MM-DD',
+	YYYY_MM_DD_Z: 'YYYY-MM-DDTHH:mm:ss',
+	DD_MM_YYYY_HH_MM_SS: 'DD/MM/YYYY HH:mm:ss',
+};
+export const DATE_FORMAT = 'YYYY-MM-DD';
+export const ORDER_STATUS = [
+	{ value: 'TN', label: 'Tận nơi' },
+	{ value: 'TK', label: 'Tận kho' },
+];
+export const PAYMENT_TYPE_MULTI = [
+	{ value: 'TTS', label: 'TTS' },
+	{ value: 'TDN', label: 'TĐN' },
+	{ value: 'DTT', label: 'ĐTT' },
+];
+export const DELIVERY_TYPE = [
+	{ value: 'TN', label: 'Tận nơi' },
+	{ value: 'TK', label: 'Tận Kho' },
+	{ value: 'QL', label: 'Quốc lộ' },
+];
