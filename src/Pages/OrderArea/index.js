@@ -995,11 +995,7 @@ const OrderArea = () => {
 										});
 									},
 								}}
-<<<<<<< HEAD
 								loading={isloading}
-=======
-								loading={order?.isloading}
->>>>>>> main
 								rowKey={(record) => record.id}
 								scroll={{ x: 'max-content' }}
 							/>
