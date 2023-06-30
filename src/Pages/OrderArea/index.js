@@ -57,6 +57,7 @@ const OrderArea = () => {
 	const dispatch = useDispatch();
 	const order = useSelector(selectOrder);
 	const { isloading } = order;
+
 	const detailAccounting = order?.listAccounting?.result;
 
 	const clearForm = () => {
@@ -557,21 +558,21 @@ const OrderArea = () => {
 	}, []);
 	useEffect(() => {
 		setTimeout(() => {
-			order.detailDeliveryOrder.result?.deliveryOrderDetails &&
+			order?.detailDeliveryOrder.result?.deliveryOrderDetails &&
 				setDataTableProduct(
-					order.detailDeliveryOrder.result?.deliveryOrderDetails,
+					order?.detailDeliveryOrder.result?.deliveryOrderDetails,
 				);
 		}, 1000);
-	}, [order.detailDeliveryOrder]);
+	}, [order?.detailDeliveryOrder]);
 	useEffect(() => {
 		form.setFieldsValue({
-			fromAddress: order.shiperDetail?.result?.address,
-			shipper: order.shiperDetail?.result?.name,
+			fromAddress: order?.shiperDetail?.result?.address,
+			shipper: order?.shiperDetail?.result?.name,
 		});
-	}, [form, order.shiperDetail]);
+	}, [form, order?.shiperDetail]);
 	useEffect(() => {
-		setShiperListData(order.filterPhoneShipper?.result?.items);
-	}, [order.filterPhoneShipper]);
+		setShiperListData(order?.filterPhoneShipper?.result?.items);
+	}, [order?.filterPhoneShipper]);
 	useEffect(() => {
 		dispatch(getAllDeliveryOrder(pages));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -585,7 +586,7 @@ const OrderArea = () => {
 		await dispatch(getDetailOrderAsync(record.id));
 	};
 	return (
-		<Spin spinning={isloading} tip="Loading..." size="large">
+		<Spin spinning={order?.isloading} tip="Loading..." size="large">
 			<Form
 				form={formSearch}
 				name="formSearch"
@@ -765,7 +766,7 @@ const OrderArea = () => {
 						</Button>,
 					]}
 				>
-					<Spin spinning={isloading} tip="Loading..." size="large">
+					<Spin spinning={order?.isloading} tip="Loading..." size="large">
 						<hr />
 						<Row>
 							<Col span={12}>
@@ -994,7 +995,11 @@ const OrderArea = () => {
 										});
 									},
 								}}
+<<<<<<< HEAD
 								loading={isloading}
+=======
+								loading={order?.isloading}
+>>>>>>> main
 								rowKey={(record) => record.id}
 								scroll={{ x: 'max-content' }}
 							/>
@@ -1017,7 +1022,7 @@ const OrderArea = () => {
 					</Space>
 				}
 			>
-				<Spin tip="Loading..." spinning={isloading} size="large">
+				<Spin tip="Loading..." spinning={order?.isloading} size="large">
 					<Form
 						labelCol={{ span: 24 }}
 						wrapperCol={{ span: 24 }}
