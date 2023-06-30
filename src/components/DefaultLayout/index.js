@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { Dropdown, Layout, Menu, Space } from 'antd';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useState } from 'react';
 import logo from '../../assets/img/logo.png';
 import './defaultLayout.css';
