@@ -86,8 +86,8 @@ const Customers = () => {
       key: "activity",
       render: (_, record) => (
         <Space size="middle">
-          <button style={{border: "none", background: "white"}} onClick={() => updateCustomer(record)}><i class="fa-solid fa-pen-to-square" style={{color: "green"}}></i></button>
-          <button style={{border: "none", background: "white"}} onClick={() => deleteCustomer(record.id)}><i class="fa-solid fa-trash" style={{color: "red"}}></i></button>
+          <button style={{border: "none", background: "white"}} onClick={() => updateCustomer(record)}><i className="fa-solid fa-pen-to-square" style={{color: "green"}}></i></button>
+          <button style={{border: "none", background: "white"}} onClick={() => deleteCustomer(record.id)}><i className="fa-solid fa-trash" style={{color: "red"}}></i></button>
         </Space>
       ),
     },
