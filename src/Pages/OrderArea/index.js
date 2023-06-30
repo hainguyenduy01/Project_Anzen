@@ -56,6 +56,7 @@ const { RangePicker } = DatePicker;
 const OrderArea = () => {
 	const dispatch = useDispatch();
 	const order = useSelector(selectOrder);
+	const { isloading } = order;
 
 	const detailAccounting = order?.listAccounting?.result;
 
@@ -994,7 +995,7 @@ const OrderArea = () => {
 										});
 									},
 								}}
-								loading={order?.isloading}
+								loading={isloading}
 								rowKey={(record) => record.id}
 								scroll={{ x: 'max-content' }}
 							/>
