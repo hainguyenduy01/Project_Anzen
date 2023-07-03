@@ -26,13 +26,6 @@ export const createCustomerAsync = createAsyncThunk(
     return response.data;
   }
 );
-export const updateCustomerAsync = createAsyncThunk(
-  "updateCustomer",
-  async (params) => {
-    const response = await updateCustomerService(params.id, params);
-    return response.data;
-  }
-);
 export const customerSlice = createSlice({
   name: "listCustomers",
   initialState,
@@ -67,15 +60,6 @@ export const customerSlice = createSlice({
           state.list = action.payload;
         }
       })
-      .addCase(updateCustomerAsync.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(updateCustomerAsync.fulfilled, (state, action) => {
-        if (action.payload) {
-          state.isLoading = false;
-          state.list = action.payload;
-        }
-      });
   },
 });
 export const selectCustomers = (state) => state.listCustomers;

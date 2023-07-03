@@ -1,0 +1,7 @@
+@import "rsuite/dist/rsuite.css";
+.form__item .ant-row {
+	flex-direction: column;
+}
+.form__item .ant-row .ant-form-item-label {
+	text-align: left;
+}

@@ -18,10 +18,3 @@ export const createCustomerService = (data) => {
         data
     })
 }
-
-export const updateCustomerService = (id, data) => {
-    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/Customers/${id}`, {
-        method: 'PUT',
-        data
-    })
-}
