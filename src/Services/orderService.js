@@ -93,3 +93,13 @@ export const downloadLadingBillService = (id) => {
 		},
 	);
 };
+export const exportGridEService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/export-grid?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
