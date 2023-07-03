@@ -4,10 +4,9 @@ import {
 	deleteOrderAsync,
 	downloadAccountingAsync,
 	downloadLadingBillAsync,
-	filterPhoneCusomerAsync,
+	exportGridAsync,
 	getAllDeliveryOrder,
 	getDetailAccounting,
-	getDetailCustomerAsync,
 	getDetailOrderAsync,
 	getSaleStaffAsync,
 	postOrderAsync,
@@ -30,7 +29,6 @@ import {
 	Tag,
 	Tooltip,
 	DatePicker,
-	AutoComplete,
 	InputNumber,
 	Card,
 } from 'antd';
@@ -38,7 +36,6 @@ import './index.css';
 import { DeleteOutlined, EditOutlined, FundOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
-
 import {
 	OPTION_STATUS,
 	ORDER_ISDONE,
@@ -51,9 +48,10 @@ import {
 	ORDER_STATUS,
 } from '../../Utils/constants';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 
-const { RangePicker } = DatePicker;
 const OrderArea = () => {
+	const { RangePicker } = DatePicker;
 	const dispatch = useDispatch();
 	const order = useSelector(selectOrder);
 	const { isloading } = order;
@@ -97,19 +95,143 @@ const OrderArea = () => {
 	});
 	const [isModalOpenCode, setIsModalOpenCode] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isModalOpenExcel, setIsModalOpenExcel] = useState(false);
+	const handleCancelExcel = () => {
+		setIsModalOpenExcel(false);
+	};
 	const [valueRadio, setValueRadio] = useState('short');
 	const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 	const [titleForm, setTitleForm] = useState('create');
 	const [dataTableProduct, setDataTableProduct] = useState([]);
 	const [isShowMultiPaymentType, setIsShowMultiPaymentType] = useState(false);
-	const [shiperListData, setShiperListData] = useState([]);
+	const columns = [
+		{
+			title: 'STT',
+			dataIndex: 'id',
+			render: (_, record, index) => <p>{index + 1}</p>,
+		},
+		{
+			title: 'Ngày tạo',
+			dataIndex: 'orderDate',
+			key: 'orderDate',
+			render: (text, record) => dayjs(text).format('DD/MM/YYYY'),
+		},
+		{
+			title: 'Số mã',
+			dataIndex: 'code',
+			key: 'code',
+			render: (code, record) => showCode(code, record),
+		},
+		{
+			title: 'NVKD',
+			dataIndex: 'createdBy',
+			key: 'createdBy',
+		},
+		{
+			title: 'Tên hàng',
+			dataIndex: 'name',
+			key: 'name',
+		},
+		{
+			title: 'Điểm nhận hàng',
+			dataIndex: 'fromAddress',
+			key: 'fromAddress',
+		},
+		{
+			title: 'SDT người gửi',
+			dataIndex: 'shipperPhone',
+			key: 'shipperPhone',
+			hidden: true,
+		},
+		{
+			title: 'Điểm giao hàng',
+			dataIndex: 'toAddress',
+			key: 'toAddress',
+		},
+		{
+			title: 'SDT người nhận',
+			dataIndex: 'consigneePhone',
+			key: 'consigneePhone',
+			hidden: true,
+		},
+		{
+			title: 'Giá cước',
+			dataIndex: 'totalAmount',
+			key: 'totalAmount',
+			hidden: true,
+		},
+		{
+			title: 'Trạng thái',
+			dataIndex: 'status',
+			key: 'status',
+			render: (text, record) => showStatus(text),
+			align: 'center',
+		},
+		{
+			title: 'HTTT',
+			dataIndex: 'paymentType',
+			key: 'paymentType',
+		},
+		{
+			title: 'Hoàn tất',
+			dataIndex: 'isDone',
+			key: 'isDone',
+			render: (text, record) => showIsDone(text),
+			align: 'center',
+		},
+		{
+			title: 'Thao tác',
+			render: (text, record) => (
+				<Space size={20}>
+					<EditOutlined
+						onClick={() => editDeliveryOrder(record)}
+						style={{ fontSize: '24px', cursor: 'pointer', color: 'green' }}
+					/>
+					<Popconfirm
+						title="Bạn có đồng ý xóa?"
+						onConfirm={() => deleteDeliveryOrder(record.id)}
+						okText="OK"
+						cancelText="Cancel"
+					>
+						<DeleteOutlined
+							style={{ fontSize: '24px', cursor: 'pointer', color: 'red' }}
+						/>
+					</Popconfirm>
+					<FundOutlined
+						style={{
+							fontSize: '24px',
+							cursor: 'pointer',
+							color: 'rgb(255, 189, 47)',
+						}}
+					/>
+				</Space>
+			),
+		},
+	];
+	const navigate = useNavigate();
+	const comlumnsfilter = columns.filter((item) => !item.hidden);
+	const [filterColumn, setFilterColumn] = useState(comlumnsfilter);
 	const [formSearch] = Form.useForm();
-	const [form] = Form.useForm();
+	const [formAdd] = Form.useForm();
 	const [formProduct] = Form.useForm();
-	const showModal = () => {
-		form.resetFields();
-		setIsModalOpen(true);
-	};
+	useEffect(() => {
+		dispatch(getSaleStaffAsync());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+	useEffect(() => {
+		dispatch(getAllDeliveryOrder(pages));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [pages]);
+
+	useEffect(() => {
+		setTimeout(() => {
+			order?.detailDeliveryOrder.result?.deliveryOrderDetails &&
+				setDataTableProduct(
+					order?.detailDeliveryOrder.result?.deliveryOrderDetails,
+				);
+		}, 1000);
+	}, [order?.detailDeliveryOrder]);
+
 	const handleCheckbox = (e) => {
 		setShowAdvancedSearch(e.target.checked);
 	};
@@ -127,7 +249,7 @@ const OrderArea = () => {
 		setIsModalOpenCode(true);
 	};
 	const showCode = (code, record) => {
-		return code === null ? (
+		return code === false ? (
 			<Tag color="#E61134" />
 		) : (
 			<Tag
@@ -173,57 +295,53 @@ const OrderArea = () => {
 		setIsModalOpenCode(false);
 		await dispatch(downloadLadingBillAsync(id));
 	};
-	const createOrder = () => {
+	const createOrder = async () => {
 		setTitleForm('create');
-		showModal();
-		setShiperListData(order.shipperList.result?.items);
+		await setIsModalOpen(true);
+		formAdd.resetFields();
 		setDataTableProduct([]);
+	};
+	const exportExcel = () => {
+		setIsModalOpenExcel(true);
+	};
+	const moveToExcel = async () => {
+		await dispatch(exportGridAsync(pages));
+		setIsModalOpenExcel(false);
+		navigate('/export-report');
 	};
 	const editProduct = (record) => {
 		formProduct.setFieldsValue({ ...record });
 	};
-	const deleteProduct = (record) => {
+	const deleteProduct = async (record) => {
 		const newListDataProduct = dataTableProduct.filter(
 			(item) => item.id !== record.id,
 		);
-		setDataTableProduct(newListDataProduct);
+		await setDataTableProduct(newListDataProduct);
 	};
-	const onChangeTaleProduct = async (values) => {
-		const product = formProduct.getFieldsValue();
-		if (product.id) {
-			const listProductAfterEdit = dataTableProduct.filter((item) =>
-				item.id === product.id ? { ...item, ...product } : item,
+	const onChangeTaleProduct = (values) => {
+		if (values.id) {
+			const listProductAfterEdit = dataTableProduct.map((item) =>
+				item.id === values.id ? { ...item, ...values } : item,
 			);
+
 			setDataTableProduct(listProductAfterEdit);
+			alert('Sửa thành công');
+			console.log(listProductAfterEdit);
 			formProduct.resetFields();
 		} else {
-			const newProduct = { ...formProduct.getFieldsValue(), id: uuidv4() };
+			const newProduct = { ...values, id: uuidv4() };
+			// console.log(newProduct);
 			setDataTableProduct([...dataTableProduct, newProduct]);
 			formProduct.resetFields();
 		}
 	};
-	const onChangePhoneShipper = async (value) => {
-		await dispatch(getDetailCustomerAsync(value.key));
-	};
+
 	const handleChangeSelectPaymentType = (value) => {
 		value === 'Other'
 			? setIsShowMultiPaymentType(true)
 			: setIsShowMultiPaymentType(false);
 	};
-	const onSearchShipperPhone = async (values) => {
-		if (values.length > 3) {
-			dispatch(
-				filterPhoneCusomerAsync({
-					...pages,
-					pageIndex: 1,
-					pageSize: 50,
-					filter: values,
-				}),
-			);
-		} else if (values.length === 0) {
-			setShiperListData(order.shipperList?.result?.items);
-		}
-	};
+
 	const onFinishCreateEdit = async (values) => {
 		if (dataTableProduct.length === 0) {
 			toast.error('Thất bại ! Vui lòng thêm ít nhất 1 sản phẩm!', {
@@ -239,13 +357,17 @@ const OrderArea = () => {
 		} else {
 			const data = {
 				...values,
+				code: values.isGenCode,
 				orderDate: values.orderDate.format(DATE_FORMAT),
 				deliveryOrderDetails: dataTableProduct,
-				shipperPhone: values.shipperPhone.label,
 			};
 			await dispatch(postOrderAsync(data));
+			dispatch(getAllDeliveryOrder(pages));
+			if (values.isGenCode === true) {
+				dispatch(downloadLadingBillAsync(values.id));
+			}
 			setIsModalOpen(false);
-			dispatch(postOrderAsync(pages));
+			// dispatch(getAllDeliveryOrder(pages));
 			if (values.id) {
 				toast.success('Sửa thành công!', {
 					position: 'top-right',
@@ -443,150 +565,17 @@ const OrderArea = () => {
 			key: 'note',
 		},
 	];
-	const columns = [
-		{
-			title: 'STT',
-			dataIndex: 'id',
-			render: (_, record, index) => <p>{index + 1}</p>,
-		},
-		{
-			title: 'Ngày tạo',
-			dataIndex: 'orderDate',
-			key: 'orderDate',
-			render: (text, record) => dayjs(text).format('DD/MM/YYYY'),
-		},
-		{
-			title: 'Số mã',
-			dataIndex: 'code',
-			key: 'code',
-			render: (code, record) => showCode(code, record),
-		},
-		{
-			title: 'NVKD',
-			dataIndex: 'createdBy',
-			key: 'createdBy',
-		},
-		{
-			title: 'Tên hàng',
-			dataIndex: 'name',
-			key: 'name',
-		},
-		{
-			title: 'Điểm nhận hàng',
-			dataIndex: 'fromAddress',
-			key: 'fromAddress',
-		},
-		{
-			title: 'SDT người gửi',
-			dataIndex: 'shipperPhone',
-			key: 'shipperPhone',
-			hidden: true,
-		},
-		{
-			title: 'Điểm giao hàng',
-			dataIndex: 'toAddress',
-			key: 'toAddress',
-		},
-		{
-			title: 'SDT người nhận',
-			dataIndex: 'consigneePhone',
-			key: 'consigneePhone',
-			hidden: true,
-		},
-		{
-			title: 'Giá cước',
-			dataIndex: 'totalAmount',
-			key: 'totalAmount',
-			hidden: true,
-		},
-		{
-			title: 'Trạng thái',
-			dataIndex: 'status',
-			key: 'status',
-			render: (text, record) => showStatus(text),
-			align: 'center',
-		},
-		{
-			title: 'HTTT',
-			dataIndex: 'paymentType',
-			key: 'paymentType',
-		},
-		{
-			title: 'Hoàn tất',
-			dataIndex: 'isDone',
-			key: 'isDone',
-			render: (text, record) => showIsDone(text),
-			align: 'center',
-		},
-		{
-			title: 'Thao tác',
-			render: (text, record) => (
-				<Space size={20}>
-					<EditOutlined
-						onClick={() => editDeliveryOrder(record)}
-						style={{ fontSize: '24px', cursor: 'pointer', color: 'green' }}
-					/>
-					<Popconfirm
-						title="Bạn có đồng ý xóa?"
-						onConfirm={() => deleteDeliveryOrder(record.id)}
-						okText="OK"
-						cancelText="Cancel"
-					>
-						<DeleteOutlined
-							style={{ fontSize: '24px', cursor: 'pointer', color: 'red' }}
-						/>
-					</Popconfirm>
-					<FundOutlined
-						style={{
-							fontSize: '24px',
-							cursor: 'pointer',
-							color: 'rgb(255, 189, 47)',
-						}}
-					/>
-				</Space>
-			),
-		},
-	];
-	const [filterColumn, setFilterColumn] = useState(
-		columns.filter((item) => !item.hidden),
-	);
 
-	useEffect(() => {
-		dispatch(getSaleStaffAsync());
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	useEffect(() => {
-		setTimeout(() => {
-			order?.detailDeliveryOrder.result?.deliveryOrderDetails &&
-				setDataTableProduct(
-					order?.detailDeliveryOrder.result?.deliveryOrderDetails,
-				);
-		}, 1000);
-	}, [order?.detailDeliveryOrder]);
-	useEffect(() => {
-		form.setFieldsValue({
-			fromAddress: order?.shiperDetail?.result?.address,
-			shipper: order?.shiperDetail?.result?.name,
-		});
-	}, [form, order?.shiperDetail]);
-	useEffect(() => {
-		setShiperListData(order?.filterPhoneShipper?.result?.items);
-	}, [order?.filterPhoneShipper]);
-	useEffect(() => {
-		dispatch(getAllDeliveryOrder(pages));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [pages]);
 	const editDeliveryOrder = async (record) => {
 		setIsModalOpen(true);
 		setTitleForm('Sửa đơn');
-		form.setFieldsValue({
+		formAdd.setFieldsValue({
 			...record,
 		});
 		await dispatch(getDetailOrderAsync(record.id));
 	};
 	return (
-		<Spin spinning={order?.isloading} tip="Loading..." size="large">
+		<Spin spinning={isloading} tip="Loading..." size="large">
 			<Form
 				form={formSearch}
 				name="formSearch"
@@ -714,7 +703,10 @@ const OrderArea = () => {
 							>
 								Tìm kiếm
 							</Button>
-							<Button style={{ backgroundColor: '#ffbd2f', color: '#fff' }}>
+							<Button
+								onClick={exportExcel}
+								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
+							>
 								Export Excel
 							</Button>
 							<Button
@@ -742,10 +734,11 @@ const OrderArea = () => {
 			</Form>
 			<div>
 				<Modal
-					forceRender
+					getContainer={false}
 					title="BIÊN NHẬN VẬN CHUYỂN"
 					open={isModalOpenCode}
 					onCancel={handleCancelCode}
+					destroyOnClose={false}
 					width={'80%'}
 					// loading={detailAccounting?.isLoading}
 					footer={[
@@ -754,19 +747,19 @@ const OrderArea = () => {
 						</Button>,
 						<Button
 							key="downloadAccountant"
-							onClick={() => downloadAccountant(detailAccounting?.id)}
+							onClick={() => downloadAccountant(detailAccounting.id)}
 						>
 							Tải xuống kế toán
 						</Button>,
 						<Button
 							key=""
-							onClick={() => downloadLadingBill(detailAccounting?.id)}
+							onClick={() => downloadLadingBill(detailAccounting.id)}
 						>
 							Tải xuống Vận đơn
 						</Button>,
 					]}
 				>
-					<Spin spinning={order?.isloading} tip="Loading..." size="large">
+					<Spin spinning={isloading} tip="Loading..." size="large">
 						<hr />
 						<Row>
 							<Col span={12}>
@@ -1004,256 +997,281 @@ const OrderArea = () => {
 				</Row>
 			</div>
 			<Modal
-				forceRender
+				getContainer={false}
 				title={titleForm === 'create' ? 'Tạo đơn mới' : 'Sửa đơn'}
 				open={isModalOpen}
 				onCancel={handleCancel}
+				destroyOnClose={false}
 				maskClosable={false}
+				width={'50%'}
 				footer={
 					<Space>
-						<Button htmlType="submit" form="form">
+						<Button htmlType="submit" form="formAdd">
 							Gửi
 						</Button>
 						<Button onClick={handleCancel}>Close</Button>
 					</Space>
 				}
 			>
-				<Spin tip="Loading..." spinning={order?.isloading} size="large">
+				<Spin tip="Loading..." spinning={isloading} size="large">
 					<Form
 						labelCol={{ span: 24 }}
 						wrapperCol={{ span: 24 }}
 						onFinish={onFinishCreateEdit}
 						autoComplete="off"
 						layout="vertical"
-						form={form}
-						name="form"
+						form={formAdd}
+						name="formAdd"
 					>
-						<div className="form-content">
-							<div className="form-content-item">
-								<div className="form-content-item-left">
-									{form.setFieldsValue({ isGenCode: false })}
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Tạo mã vận đơn"
+									name="isGenCode"
+									rules={[{ required: true, message: 'Vui lòng lựa chọn!' }]}
+								>
+									<Radio.Group>
+										<Radio value={true}> Tạo </Radio>
+										<Radio value={false}> Không tạo </Radio>
+									</Radio.Group>
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Nhân viên kinh doanh"
+									name="saleStaff"
+									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+								>
+									<Select placeholder="Chọn Nhân viên kinh doanh">
+										{order.saleStaff.map((item, index) => (
+											<Select.Option key={index} value={item.userName}>
+												{item.fullName}
+											</Select.Option>
+										))}
+									</Select>
+								</Form.Item>
+							</Col>
+						</Row>
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item label="Số mã" name="id">
+									<Input disabled style={{ color: '#ffbd2f' }} />
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={12}>
+								{formAdd.setFieldsValue({ orderDate: dayjs(new Date()) })}
+								<Form.Item
+									label="Ngày tạo"
+									name="orderDate"
+									rules={[
+										{ required: true, message: 'Vui lòng nhập ngày tạo!' },
+									]}
+								>
+									<DatePicker style={{ width: '100%' }} format={DATE_FORMAT} />
+								</Form.Item>
+							</Col>
+						</Row>
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Người gửi"
+									name="shipper"
+									rules={[
+										{ required: true, message: 'Vui lòng nhập Người gửi!' },
+									]}
+								>
+									<Input />
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Người nhận"
+									name="consignee"
+									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+								>
+									<Input />
+								</Form.Item>
+							</Col>
+						</Row>
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Địa chỉ gửi"
+									name="fromAddress"
+									rules={[
+										{
+											required: true,
+											message: 'Vui lòng nhập Địa chỉ gửi!',
+										},
+									]}
+								>
+									<Input />
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={12} md={6}>
+								<Form.Item
+									label="Địa chỉ nhận"
+									name="toAddress"
+									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+								>
+									<Input />
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={12} md={6}>
+								<Form.Item
+									label="Tỉnh"
+									name="provinceCode"
+									rules={[{ required: true, message: 'Vui lòng nhập Tỉnh!' }]}
+								>
+									<Select
+										placeholder="Chọn Tỉnh"
+										options={PROVINCE.map((item, index) => ({
+											value: item.code,
+											label: item.name,
+											key: index,
+										}))}
+									/>
+								</Form.Item>
+							</Col>
+						</Row>
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Số điện thoại người gửi"
+									name="shipperPhone"
+									rules={[
+										{
+											required: true,
+											message: 'Vui lòng nhập Số điện thoại người gửi!',
+										},
+									]}
+								>
+									<Input placeholder="Nhập số điện thoại người gửi" />
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Số điện thoại người nhận"
+									name="consigneePhone"
+									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+								>
+									<Input placeholder="Nhập số điện thoại người nhận" />
+								</Form.Item>
+							</Col>
+						</Row>
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Hình thức nhận hàng"
+									name="receiveType"
+									rules={[
+										{
+											required: true,
+											message: 'Vui lòng nhập Hình thức nhận hàng!',
+										},
+									]}
+								>
+									<Select
+										placeholder="Chọn Trạng thái đơn hàng"
+										options={ORDER_STATUS}
+									/>
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Hình thức giao hàng"
+									name="sendType"
+									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+								>
+									<Select
+										placeholder="Chọn Hình thức giao hàng"
+										options={DELIVERY_TYPE}
+									/>
+								</Form.Item>
+							</Col>
+						</Row>
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Hình thức thanh toán"
+									name="paymentType"
+									rules={[
+										{
+											required: true,
+											message: 'Vui lòng nhập Hình thức thanh toán!',
+										},
+									]}
+								>
+									<Select
+										onChange={handleChangeSelectPaymentType}
+										placeholder="Chọn Hình thức thanh toán"
+										options={PAYMENT_TYPE}
+									/>
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item
+									label="Cước vận chuyển"
+									name="totalAmount"
+									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+								>
+									<InputNumber />
+								</Form.Item>
+							</Col>
+						</Row>
+						{isShowMultiPaymentType && (
+							<Row gutter={24}>
+								<Col xs={24} sm={24} md={6}>
 									<Form.Item
-										label="Tạo mã vận đơn"
-										name="isGenCode"
-										rules={[{ required: true, message: 'Vui lòng lựa chọn!' }]}
-									>
-										<Radio.Group>
-											<Radio value={true}> Tạo </Radio>
-											<Radio value={false}> Không tạo </Radio>
-										</Radio.Group>
-									</Form.Item>
-									<Form.Item label="Số mã" name="id">
-										<Input disabled />
-									</Form.Item>
-									<Form.Item
-										label="Người gửi"
-										name="shipper"
-										rules={[
-											{ required: true, message: 'Vui lòng nhập Người gửi!' },
-										]}
-									>
-										<Input />
-									</Form.Item>
-									<Form.Item
-										label="Địa chỉ gửi"
-										name="fromAddress"
-										rules={[
-											{
-												required: true,
-												message: 'Vui lòng nhập Địa chỉ gửi!',
-											},
-										]}
-									>
-										<Input />
-									</Form.Item>
-									<Form.Item
-										label="Số điện thoại người gửi"
-										name="shipperPhone"
-										rules={[
-											{
-												required: true,
-												message: 'Vui lòng nhập Số điện thoại người gửi!',
-											},
-										]}
-									>
-										<AutoComplete
-											options={
-												shiperListData &&
-												shiperListData.map((item, index) => ({
-													label: item.phone,
-													value: item.phone,
-													key: index,
-												}))
-											}
-											onSelect={onChangePhoneShipper}
-											onSearch={onSearchShipperPhone}
-											labelInValue={true}
-											placeholder="Nhập Số điện thoại người gửi"
-										/>
-									</Form.Item>
-									<Form.Item
-										label="Hình thức nhận hàng"
-										name="receiveType"
-										rules={[
-											{
-												required: true,
-												message: 'Vui lòng nhập Hình thức nhận hàng!',
-											},
-										]}
+										label="Tên HTTT1"
+										name="paymentType1"
+										className="multi-payment-type-left"
 									>
 										<Select
-											placeholder="Chọn Trạng thái đơn hàng"
-											options={ORDER_STATUS}
-										/>
-									</Form.Item>
-									<Form.Item
-										label="Hình thức thanh toán"
-										name="paymentType"
-										rules={[
-											{
-												required: true,
-												message: 'Vui lòng nhập Hình thức thanh toán!',
-											},
-										]}
-									>
-										<Select
-											onChange={handleChangeSelectPaymentType}
 											placeholder="Chọn Hình thức thanh toán"
-											options={PAYMENT_TYPE}
+											options={PAYMENT_TYPE_MULTI}
 										/>
 									</Form.Item>
-									{isShowMultiPaymentType && (
-										<div className="form-content-item">
-											<Form.Item
-												label="Tên HTTT1"
-												name="paymentType1"
-												className="multi-payment-type-left"
-											>
-												<Select
-													placeholder="Chọn Hình thức thanh toán"
-													options={PAYMENT_TYPE_MULTI}
-												/>
-											</Form.Item>
-											<Form.Item
-												label="Số tiền"
-												name="paymentTypeValue1"
-												className="multi-payment-type-right"
-											>
-												<InputNumber />
-											</Form.Item>
-										</div>
-									)}
-									<Form.Item label="Phát sinh khác" name="additionalAmount">
-										<Input />
-									</Form.Item>
-								</div>
-								<div className="form-content-item-right">
+								</Col>
+								<Col xs={24} sm={24} md={6}>
 									<Form.Item
-										label="Nhân viên kinh doanh"
-										name="saleStaff"
-										rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-									>
-										<Select
-											placeholder="Chọn Nhân viên kinh doanh"
-											options={order.saleStaff.result?.map((item) => ({
-												label: item.fullName,
-												value: item.userName,
-											}))}
-										/>
-									</Form.Item>
-									{form.setFieldsValue({ orderDate: dayjs(new Date()) })}
-									<Form.Item
-										label="Ngày tạo"
-										name="orderDate"
-										rules={[
-											{ required: true, message: 'Vui lòng nhập ngày tạo!' },
-										]}
-									>
-										<DatePicker
-											style={{ width: '100%' }}
-											format={DATE_FORMAT}
-										/>
-									</Form.Item>
-									<Form.Item
-										label="Người nhận"
-										name="consignee"
-										rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-									>
-										<Input />
-									</Form.Item>
-									<Space>
-										<Form.Item
-											label="Địa chỉ nhận"
-											name="toAddress"
-											rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-										>
-											<Input />
-										</Form.Item>
-										<Form.Item
-											label="Tỉnh"
-											name="provinceCode"
-											rules={[
-												{ required: true, message: 'Vui lòng nhập Tỉnh!' },
-											]}
-										>
-											<Select
-												placeholder="Chọn Tỉnh"
-												options={PROVINCE.map((item) => ({
-													value: item.code,
-													label: item.name,
-												}))}
-											/>
-										</Form.Item>
-									</Space>
-
-									<Form.Item
-										label="Số điện thoại người nhận"
-										name="consigneePhone"
-										rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-									>
-										<Input />
-									</Form.Item>
-									<Form.Item
-										label="Hình thức giao hàng"
-										name="sendType"
-										rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-									>
-										<Select
-											placeholder="Chọn Hình thức giao hàng"
-											options={DELIVERY_TYPE}
-										/>
-									</Form.Item>
-									<Form.Item
-										label="Cước vận chuyển"
-										name="totalAmount"
-										rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+										label="Số tiền"
+										name="paymentTypeValue1"
+										className="multi-payment-type-right"
 									>
 										<InputNumber />
 									</Form.Item>
-									{isShowMultiPaymentType && (
-										<div className="form-content-item">
-											<Form.Item
-												label="Tên HTTT2"
-												name="paymentType2"
-												className="multi-payment-type-left"
-											>
-												<Select
-													placeholder="Chọn Hình thức thanh toán"
-													options={PAYMENT_TYPE_MULTI}
-												/>
-											</Form.Item>
-											<Form.Item
-												label="Số tiền"
-												name="paymentTypeValue2"
-												className="multi-payment-type-right"
-											>
-												<InputNumber />
-											</Form.Item>
-										</div>
-									)}
-								</div>
-							</div>
-						</div>
+								</Col>
+								<Col xs={24} sm={24} md={6}>
+									<Form.Item
+										label="Tên HTTT2"
+										name="paymentType2"
+										className="multi-payment-type-left"
+									>
+										<Select
+											placeholder="Chọn Hình thức thanh toán"
+											options={PAYMENT_TYPE_MULTI}
+										/>
+									</Form.Item>
+								</Col>
+								<Col xs={24} sm={24} md={6}>
+									<Form.Item
+										label="Số tiền"
+										name="paymentTypeValue2"
+										className="multi-payment-type-right"
+									>
+										<InputNumber />
+									</Form.Item>
+								</Col>
+							</Row>
+						)}
+						<Row gutter={24}>
+							<Col xs={24} sm={24} md={12}>
+								<Form.Item label="Phát sinh khác" name="additionalAmount">
+									<Input />
+								</Form.Item>
+							</Col>
+						</Row>
 					</Form>
 					<Form
 						labelCol={{ span: 24 }}
@@ -1264,97 +1282,137 @@ const OrderArea = () => {
 						form={formProduct}
 						name="formProduct"
 					>
-						<Card title="Tao/ Sua don hang">
-							<div className="form-content-item">
-								<div className="form-content-item-left">
-									<Form.Item label="id" name="id" hidden={true}>
-										<Input />
-									</Form.Item>
-									<Form.Item
-										label="Tên hàng"
-										name="name"
-										rules={[
-											{ required: true, message: 'Vui lòng nhập tên hàng!' },
-										]}
-									>
-										<Input />
-									</Form.Item>
-									<Form.Item
-										label="Khối lượng"
-										name="mass"
-										rules={[
-											{
-												required: true,
-												message: 'Vui lòng nhập Khối lượng!',
-											},
-										]}
-									>
-										<InputNumber min={1} max={1000} />
-									</Form.Item>
-									<Form.Item
-										label="Đơn vị tính"
-										name="unit"
-										rules={[
-											{
-												required: true,
-												message: 'Vui lòng nhập Đơn vị tính!',
-											},
-										]}
-									>
-										<Input />
-									</Form.Item>
-								</div>
-								<div className="form-content-item-right">
-									<Form.Item
-										label="Số lượng"
-										name="quantity"
-										rules={[
-											{ required: true, message: 'Vui lòng nhập Số lượng!' },
-										]}
-									>
-										<InputNumber min={1} max={1000} />
-									</Form.Item>
-									<Form.Item
-										label="Trọng lượng"
-										name="weight"
-										rules={[
-											{
-												required: true,
-												message: 'Vui lòng nhập Trọng lượng!',
-											},
-										]}
-									>
-										<InputNumber min={1} max={100} />
-									</Form.Item>
-									<Form.Item
-										label="Ghi chú"
-										name="note"
-										rules={[
-											{ required: true, message: 'Vui lòng nhập Ghi chú!' },
-										]}
-									>
-										<Input />
-									</Form.Item>
-								</div>
+						<Card title="Tao/ Sua don hang" style={{ backgroundColor: '#ccc' }}>
+							<Form.Item name="id" hidden={true}>
+								<Input />
+							</Form.Item>
+							<div style={{ padding: 20 }}>
+								<Row gutter={24}>
+									<Col xs={24} sm={24} md={12}>
+										<Form.Item
+											label="Tên hàng"
+											name="name"
+											rules={[
+												{ required: true, message: 'Vui lòng nhập tên hàng!' },
+											]}
+										>
+											<Input />
+										</Form.Item>
+									</Col>
+									<Col xs={24} sm={24} md={12}>
+										<Form.Item
+											label="Số lượng"
+											name="quantity"
+											rules={[
+												{ required: true, message: 'Vui lòng nhập Số lượng!' },
+											]}
+										>
+											<InputNumber min={1} max={1000} />
+										</Form.Item>
+									</Col>
+								</Row>
+								<Row gutter={24}>
+									<Col xs={24} sm={24} md={12}>
+										<Form.Item
+											label="Khối lượng"
+											name="mass"
+											rules={[
+												{
+													required: true,
+													message: 'Vui lòng nhập Khối lượng!',
+												},
+											]}
+										>
+											<InputNumber min={1} max={1000} />
+										</Form.Item>
+									</Col>
+									<Col xs={24} sm={24} md={12}>
+										<Form.Item
+											label="Trọng lượng"
+											name="weight"
+											rules={[
+												{
+													required: true,
+													message: 'Vui lòng nhập Trọng lượng!',
+												},
+											]}
+										>
+											<InputNumber min={1} max={100} />
+										</Form.Item>
+									</Col>
+								</Row>
+								<Row gutter={24}>
+									<Col xs={24} sm={24} md={12}>
+										<Form.Item
+											label="Đơn vị tính"
+											name="unit"
+											rules={[
+												{
+													required: true,
+													message: 'Vui lòng nhập Đơn vị tính!',
+												},
+											]}
+										>
+											<Input />
+										</Form.Item>
+									</Col>
+									<Col xs={24} sm={24} md={12}>
+										<Form.Item
+											label="Ghi chú"
+											name="note"
+											rules={[
+												{ required: true, message: 'Vui lòng nhập Ghi chú!' },
+											]}
+										>
+											<Input />
+										</Form.Item>
+									</Col>
+								</Row>
+								<Button
+									style={{
+										backgroundColor: '#ffbd2f',
+										color: '#fff',
+									}}
+									htmlType="submit"
+									form="formProduct"
+									name="formProduct"
+								>
+									Thêm
+								</Button>
 							</div>
-							<Button
-								className="button-add"
-								htmlType="submit"
-								form="formProduct"
-							>
-								Thêm
-							</Button>
 						</Card>
 					</Form>
-					{dataTableProduct.length > 0 && (
-						<Table
-							className="atn-tbl-goods"
-							dataSource={dataTableProduct}
-							columns={columnTableProduct}
-						/>
-					)}
+					<div className="pt-3">
+						{dataTableProduct.length > 0 && (
+							<Table
+								dataSource={dataTableProduct}
+								columns={columnTableProduct}
+							/>
+						)}
+					</div>
 				</Spin>
 			</Modal>
+			<Spin tip="Loading..." loading={isloading}>
+				<Modal
+					title="Thông báo"
+					open={isModalOpenExcel}
+					footer={[
+						<Button key="close" onClick={handleCancelExcel}>
+							Cancel
+						</Button>,
+						<Button key="movetoexcel" onClick={moveToExcel}>
+							OK
+						</Button>,
+					]}
+				>
+					<hr />
+					<p>
+						Bạn có muốn chuyển hướng qua màn hình Export Report để tải file
+						không?
+					</p>
+					<hr />
+				</Modal>
+			</Spin>
 		</Spin>
 	);
 };

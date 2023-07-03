@@ -82,6 +82,7 @@ export const ORDER_ISDONE = [
 export const FORMATS_DATE = {
 	DD_MM_YYYY: 'DD/MM/YYYY',
 	YYYY_MM_DD: 'YYYY-MM-DD',
+	YY_MM_DD: 'YY-MM-DD',
 	YYYY_MM_DD_Z: 'YYYY-MM-DDTHH:mm:ss',
 	DD_MM_YYYY_HH_MM_SS: 'DD/MM/YYYY HH:mm:ss',
 };

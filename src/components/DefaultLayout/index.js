@@ -8,6 +8,8 @@ import {
 	UserOutlined,
 	UserAddOutlined,
 	LogoutOutlined,
+	SwapOutlined,
+	OrderedListOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { Dropdown, Layout, Menu, Space } from 'antd';
@@ -53,6 +55,11 @@ const DefaultLayout = () => {
 			label: 'Bảng kê',
 		},
 		{
+			key: '/accountant',
+			icon: <SwapOutlined />,
+			label: 'Kế toán',
+		},
+		{
 			key: '/customers',
 			icon: <UserOutlined />,
 			label: 'Khách hàng',
@@ -61,6 +68,11 @@ const DefaultLayout = () => {
 			key: '/drivers',
 			icon: <MedicineBoxOutlined />,
 			label: 'Tài xế',
+		},
+		{
+			key: '/export-report',
+			icon: <OrderedListOutlined />,
+			label: 'Lịch sử tải xuống ',
 		},
 		{
 			key: '/register',

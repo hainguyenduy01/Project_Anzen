@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+import dayjs from 'dayjs';
 import {
 	deleteOrderService,
 	downloadAccountingService,
 	downloadLadingBillService,
+	exportGridEService,
 	filterPhoneCustomerService,
 	getAccountingService,
 	getAllDeliveryOrderService,
@@ -17,7 +18,7 @@ const initialState = {
 	isloading: false,
 	listDeliveryOrder: {},
 	listAccounting: {},
-	saleStaff: {},
+	saleStaff: [],
 	shiperDetail: [],
 	filterPhoneShipper: [],
 	shipperList: [],
@@ -49,6 +50,14 @@ export const downloadLadingBillAsync = createAsyncThunk(
 	'downloadLadingBill',
 	async (id) => {
 		const response = await downloadLadingBillService(id);
+
+		return response.data;
+	},
+);
+export const exportGridAsync = createAsyncThunk(
+	'exportGrid',
+	async (params) => {
+		const response = await exportGridEService(params);
 
 		return response.data;
 	},
@@ -153,7 +162,10 @@ export const orderSlice = createSlice({
 					const href = URL.createObjectURL(action.payload);
 					const link = document.createElement('a');
 					link.href = href;
-					link.setAttribute('download', `vandon.pdf`);
+					link.setAttribute(
+						'download',
+						`Biên nhận ${dayjs().format('DD/MM/YYYY')}.pdf`,
+					);
 					document.body.appendChild(link);
 					link.click();
 					document.body.removeChild(link);
@@ -178,6 +190,14 @@ export const orderSlice = createSlice({
 				state.isloading = true;
 			})
 			.addCase(postOrderAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.isloading = false;
+				}
+			})
+			.addCase(exportGridAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(exportGridAsync.fulfilled, (state, action) => {
 				if (action.payload) {
 					state.isloading = false;
 				}
