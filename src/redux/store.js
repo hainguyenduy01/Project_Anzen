@@ -4,6 +4,7 @@ import customerSlice from '../Slice/customerSlice';
 import driverSlice from '../Slice/driverSlice';
 import  policySlice  from '../Slice/policySlice';
 import registerSlice from '../Slice/registerSlice';
+import AccountantSlice from '../Slice/AccountantSlice';
 
 const store = configureStore({
 	reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
 		listDrivers: driverSlice,
 		listPolicy: policySlice,
 		listUsers: registerSlice,
+		BillOfLadings: AccountantSlice
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
