@@ -4,7 +4,7 @@ import { createPolicyService, deletePolicyService, getAllPolicyService, updatePo
 
 const initialState= {
     isLoading: false,
-    listPolicy: {},
+    listPolicy: [],
 };
 export const getAllPolicyAsync = createAsyncThunk(
     "getAllPolicy",
