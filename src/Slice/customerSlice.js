@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createCustomerService, deleteCustomerService, getAllCustomerService, updateCustomerService } from "../Services/customerService";
+import { createCustomerService, deleteCustomerService, getAllCustomerService} from "../Services/customerService";
 
 const initialState = {
   isLoading: false,

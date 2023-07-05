@@ -150,7 +150,6 @@ const Customers = () => {
 
     dispatch(getAllCustomersAsync(values));
   };
-  console.log(customersList);
 
   const onFinishSearch = async (values) => {
       await dispatch(
