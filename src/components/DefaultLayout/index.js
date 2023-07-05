@@ -24,14 +24,17 @@ const DefaultLayout = (props) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		const user = localStorage.getItem('user');
+		if (!user) {
+			navigate('/user/login');
+		}
 		getUserProfile1();
-
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	const getUserProfile1 = async () => {
 		const res = await getUserProfile();
 		if (res.status !== 200) {
-			navigate('/');
+			navigate('/home');
 		}
 	};
 	let location = useLocation();
