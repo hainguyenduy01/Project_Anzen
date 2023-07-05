@@ -1,6 +1,7 @@
-import { Button, Form, Space, Table, Modal, Input } from "antd";
+import { Button, Form, Space, Table, Modal, Input, Row, Col } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { DateRangePicker } from "rsuite";
 import { createDriverAsync, deleteDriverAsync, getAllDriverAsync, selectDrivers, updateDriverAsync } from "../../Slice/driverSlice";
 
 const Drivers = () => {
@@ -23,7 +24,7 @@ const Drivers = () => {
 	const handleCancel = () => {
 		setIsModalOpen(false);
 	};
-	const deleteDriver = async (id)=>{
+	const deleteDriver = async (id) => {
 		await dispatch(deleteDriverAsync(id));
 		dispatch(getAllDriverAsync());
 	};
@@ -36,7 +37,7 @@ const Drivers = () => {
 		dispatch(getAllDriverAsync());
 		setIsModalOpen(false);
 	};
-	const updateDriver = (list) =>{
+	const updateDriver = (list) => {
 		form.resetFields();
 		setIsModalOpen(true);
 		form.setFieldsValue({
@@ -48,7 +49,8 @@ const Drivers = () => {
 		{
 			title: "STT",
 			dataIndex: "id",
-			key: "id"
+			key: "id",
+			render: (_, record, index) => <p>{index + 1}</p>,
 		},
 		{
 			title: "Tên",
@@ -111,12 +113,59 @@ const Drivers = () => {
 			),
 		},
 	];
+	const handleTableChange = (page) => {
+		const params = {
+			pageIndex: page.current,
+			pageSize: page.pageSize,
+		};
+
+		const values = {
+			pageIndex: params.pageIndex,
+			pageSize: params.pageSize,
+		};
+
+		dispatch(getAllDriverAsync(values));
+	};
 
 	return (
 		<>
-			<Button type="primary" onClick={showModal}>
-				Thêm tài xế
-			</Button>
+			<Form>
+				<Row>
+					<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+						<Form.Item
+							label="SDT Tài xế"
+							name="phone"
+							className="form__item">
+							<Input />
+						</Form.Item>
+					</Col>
+					<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+						<Form.Item
+							label="Biển số xe"
+							name="drivingLicense"
+							className="form__item">
+							<Input />
+						</Form.Item>
+					</Col>
+					<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+						<Form.Item
+							label="Từ ngày - Đến ngày"
+							name="createdDate"
+							className="form__item"
+						>
+							<DateRangePicker block />
+						</Form.Item>
+					</Col>
+				</Row>
+			</Form>
+			<Row className="pd-3">
+				<Col xs={24} sm={18} md={18}>
+					<Button type="primary" onClick={showModal} style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
+						Thêm tài xế
+					</Button>
+				</Col>
+			</Row>
+
 			<Modal title="Thêm tài xế" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
 				<Form
 					name="form"
@@ -289,7 +338,14 @@ const Drivers = () => {
 			</Modal>
 			<Table dataSource={driver?.listDriver?.result?.items}
 				loading={driver.isLoading}
-				columns={columns} />
+				columns={columns}
+				pagination={{
+					size: "small",
+					total: driver?.listDriver?.result?.total,
+					showTotal: (total, range) =>
+						`${range[0]}-${range[1]} of ${total} items`,
+				}}
+				onChange={(page) => handleTableChange(page)} />
 		</>
 	);
 };
