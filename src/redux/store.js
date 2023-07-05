@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import orderSlice from '../Slice/orderSlice';
 import customerSlice from '../Slice/customerSlice';
 import driverSlice from '../Slice/driverSlice';
+import { policySlice } from '../Slice/policySlice';
 
 const store = configureStore({
 	reducer: {
 		order: orderSlice,
 		listCustomers: customerSlice,
 		listDrivers: driverSlice,
+		listPolicy: policySlice
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
