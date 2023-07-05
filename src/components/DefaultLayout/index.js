@@ -34,7 +34,7 @@ const DefaultLayout = (props) => {
 	const getUserProfile1 = async () => {
 		const res = await getUserProfile();
 		if (res.status !== 200) {
-			navigate('/home');
+			navigate('/user/login');
 		}
 	};
 	let location = useLocation();
