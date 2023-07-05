@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { createDriverService, deleteDriverService, getAllDriverService, updateDriverService } from "../Services/driverService"
+import { createDriverService, deleteDriverService, getAllDriverService, searchLicensePlateService, updateDriverService } from "../Services/driverService"
 
 const initialState= {
     isLoading: false,
@@ -30,6 +30,13 @@ export const updateDriverAsync = createAsyncThunk(
     "updateDriver",
     async (params) => {
         const response = await updateDriverService(params.id,params);
+        return response.data;
+    }
+);
+export const searchLicensePlateAsync = createAsyncThunk(
+    "searchLicensePlate",
+    async (params) => {
+        const response = await searchLicensePlateService(params.id,params);
         return response.data;
     }
 );
@@ -72,6 +79,15 @@ export const driverSlice = createSlice({
             state.isLoading = true;
         })
         .addCase(updateDriverAsync.fulfilled,(state, action) =>{
+            if(action.payload){
+                state.isLoading = false;
+                state.list = action.payload;
+            }
+        })
+        .addCase(searchLicensePlateAsync.pending,(state) =>{
+            state.isLoading = true;
+        })
+        .addCase(searchLicensePlateAsync.fulfilled,(state, action) =>{
             if(action.payload){
                 state.isLoading = false;
                 state.list = action.payload;

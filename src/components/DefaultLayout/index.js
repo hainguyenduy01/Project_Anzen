@@ -11,25 +11,49 @@ import {
 	SwapOutlined,
 	OrderedListOutlined,
 } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Dropdown, Layout, Menu, Space } from 'antd';
 import { useState } from 'react';
 import logo from '../../assets/img/logo.png';
 import './defaultLayout.css';
 import Home from '../../Pages/Home';
 import { toast } from 'react-toastify';
+import { getUserProfile } from '../../Services/LoginServices';
 const { Header, Sider, Content } = Layout;
-const DefaultLayout = () => {
+const DefaultLayout = (props) => {
 	const navigate = useNavigate();
+
 	useEffect(() => {
-		const user = localStorage.getItem('token');
+		const user = localStorage.getItem('user');
 		if (!user) {
 			navigate('/user/login');
 		}
+		getUserProfile1();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	const getUserProfile1 = async () => {
+		const res = await getUserProfile();
+		if (res.status !== 200) {
+			navigate('/user/login');
+		}
+	};
+	let location = useLocation();
+	const [current, setCurrent] = useState(
+		location.pathname === '/' || location.pathname === ''
+			? '/home'
+			: location.pathname,
+	);
+	useEffect(() => {
+		if (location) {
+			if (current !== location.pathname) {
+				setCurrent(location.pathname);
+			}
+		}
+	}, [location, current]);
 	const logout = () => {
-		localStorage.removeItem('token');
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('refresh_token');
+		localStorage.removeItem('expires_in');
 		localStorage.removeItem('user');
 		toast.success('Đăng xuất thành công!', {
 			position: 'top-right',
@@ -128,7 +152,7 @@ const DefaultLayout = () => {
 					<div style={{ flex: '1 1 0%', overflow: 'hidden auto' }}>
 						<Menu
 							mode="inline"
-							defaultSelectedKeys={'/home'}
+							selectedKeys={[current]}
 							onClick={({ key }) => navigate(key)}
 							items={listNavMenu}
 						/>

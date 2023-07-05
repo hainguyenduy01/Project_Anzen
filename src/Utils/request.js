@@ -6,7 +6,6 @@ const request = axios.create({
 		'Content-Type': 'application/json-patch+json',
 	},
 });
-
 const handleError = (error) => {
 	const { response = {} } = error;
 	const { data, status, statusText } = response;
@@ -14,13 +13,17 @@ const handleError = (error) => {
 };
 
 request.interceptors.request.use((config) => {
-	const token = localStorage.getItem('token');
+	const token = localStorage.getItem('access_token');
 	config.headers.Authorization = `Bearer ${token}`;
 	return config;
 });
 
-request.interceptors.response.use((response) => {
-	return response;
-}, handleError);
+request.interceptors.response.use(
+	(response) => {
+		return response;
+	},
+
+	handleError,
+);
 
 export default request;
