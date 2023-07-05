@@ -25,6 +25,7 @@ const DefaultLayout = (props) => {
 
 	useEffect(() => {
 		getUserProfile1();
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	const getUserProfile1 = async () => {
