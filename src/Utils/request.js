@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const request = axios.create({
 	timeout: 60000,
@@ -26,7 +27,11 @@ request.interceptors.response.use(
 	async (error) => {
 		const { response = {} } = error;
 		const { status } = response;
-		if (status === 401) {
+		const tokenAccess = localStorage.getItem('access_token');
+
+		if (!tokenAccess) {
+			window.location.href = '/user/login';
+		} else if (status === 401) {
 			const refreshToken = localStorage.getItem('refresh_token');
 			try {
 				const response = await axios.post(
@@ -43,7 +48,7 @@ request.interceptors.response.use(
 				originalRequest.headers.Authorization = `Bearer ${access_token}`;
 				return axios(originalRequest);
 			} catch (error) {
-				console.error(error);
+				// console.error(error);
 			}
 		}
 		return Promise.reject(error);
