@@ -1,8 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import {
+	deleteExcelService,
 	deleteOrderService,
 	downloadAccountingService,
+	downloadExcelService,
+	downloadImageService,
 	downloadLadingBillService,
 	exportGridEService,
 	filterPhoneCustomerService,
@@ -10,8 +13,12 @@ import {
 	getAllDeliveryOrderService,
 	getDetailCustomerService,
 	getDetailOrderService,
+	getDetailShipperService,
+	getDownloadService,
+	getInfoImageService,
 	getSaleStaffService,
 	postOrderService,
+	uploadImageService,
 } from '../Services/orderService';
 import { toast } from 'react-toastify';
 const initialState = {
@@ -20,9 +27,15 @@ const initialState = {
 	listAccounting: {},
 	saleStaff: [],
 	shiperDetail: [],
+	shipper: [],
 	filterPhoneShipper: [],
 	shipperList: [],
 	detailDeliveryOrder: [],
+	listDownload: [],
+	linkDownload: [],
+	listInfoImage: {},
+	linkDownloadImage: [],
+	uploadImage: [],
 };
 export const getAllDeliveryOrder = createAsyncThunk(
 	'getAllDeliveryOrder',
@@ -95,10 +108,56 @@ export const getDetailCustomerAsync = createAsyncThunk(
 		return response.data;
 	},
 );
+export const getDetailShipperAsync = createAsyncThunk(
+	'getDetailShipper',
+	async (id) => {
+		const response = await getDetailShipperService(id);
+		return response.data;
+	},
+);
 export const getDetailOrderAsync = createAsyncThunk(
 	'getDetailOrder',
 	async (id) => {
 		const response = await getDetailOrderService(id);
+		return response.data;
+	},
+);
+export const getDownloadAsync = createAsyncThunk(
+	'getDownload',
+	async (params) => {
+		const response = await getDownloadService(params);
+		return response.data.result;
+	},
+);
+export const deleteExcelAsync = createAsyncThunk('deleteExcel', async (id) => {
+	const response = await deleteExcelService(id);
+	return response.data;
+});
+export const downloadExcelAsync = createAsyncThunk(
+	'downloadExcel',
+	async (id) => {
+		const response = await downloadExcelService(id);
+		return response.data;
+	},
+);
+export const getInfoImageAsync = createAsyncThunk(
+	'getInfoImage',
+	async (params) => {
+		const response = await getInfoImageService(params);
+		return response.data;
+	},
+);
+export const downloadImageAsync = createAsyncThunk(
+	'downloadImage',
+	async (params) => {
+		const response = await downloadImageService(params);
+		return response.data;
+	},
+);
+export const uploadImageAsync = createAsyncThunk(
+	'uploadImage',
+	async (params) => {
+		const response = await uploadImageService(params);
 		return response.data;
 	},
 );
@@ -221,6 +280,15 @@ export const orderSlice = createSlice({
 					state.isloading = false;
 				}
 			})
+			.addCase(getDetailShipperAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(getDetailShipperAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.shipper = action.payload;
+					state.isloading = false;
+				}
+			})
 			.addCase(getDetailOrderAsync.pending, (state) => {
 				state.isloading = true;
 			})
@@ -243,6 +311,77 @@ export const orderSlice = createSlice({
 				state.isloading = true;
 			})
 			.addCase(deleteOrderAsync.fulfilled, (state, action) => {
+				state.isloading = false;
+			})
+			.addCase(deleteExcelAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(deleteExcelAsync.fulfilled, (state, action) => {
+				state.isloading = false;
+			})
+			.addCase(getDownloadAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(getDownloadAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.listDownload = action.payload;
+					state.isloading = false;
+				}
+			})
+			.addCase(downloadExcelAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(downloadExcelAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.isloading = false;
+					state.linkDownload = action.payload;
+				} else {
+					state.isloading = false;
+					toast.success('Tiến hành tải xuống!', {
+						position: 'top-right',
+						autoClose: 3000,
+						hideProgressBar: false,
+						closeOnClick: true,
+						pauseOnHover: true,
+						draggable: false,
+						progress: undefined,
+						theme: 'light',
+					});
+				}
+			})
+			.addCase(getInfoImageAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(getInfoImageAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.listInfoImage = action.payload;
+					state.isloading = false;
+				}
+			})
+			.addCase(uploadImageAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(uploadImageAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.uploadImage = action.payload;
+					state.isloading = false;
+				}
+			})
+			.addCase(downloadImageAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(downloadImageAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					const href = URL.createObjectURL(action.payload);
+					const link = document.createElement('a');
+					link.href = href;
+					link.setAttribute('download', `Hình ảnh.zip`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					URL.revokeObjectURL(href);
+				}
+				// state.linkDownloadImage = action.payload;
 				state.isloading = false;
 			});
 	},
