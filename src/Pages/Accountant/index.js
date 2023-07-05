@@ -221,7 +221,7 @@ const Accountant = () => {
 			</Form>
 			<Table
 				dataSource={listAccountant?.listA?.result?.items}
-				loading={listAccountant.isLoading}
+				loading={listAccountant?.isLoading}
 				columns={columns}
 				pagination={{
 					size: 'small',
