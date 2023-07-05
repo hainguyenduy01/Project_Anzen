@@ -48,6 +48,14 @@ export const getDetailCustomerService = (id) => {
 		},
 	);
 };
+export const getDetailShipperService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/Customers/${id}`,
+		{
+			method: 'GET',
+		},
+	);
+};
 //postDeliveryOrderService
 export const postOrderService = (data) => {
 	return request(
@@ -100,6 +108,66 @@ export const exportGridEService = (params) => {
 		)}`,
 		{
 			method: 'GET',
+		},
+	);
+};
+export const getDownloadService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DownloadCenters?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const deleteExcelService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DownloadCenters/${id}`,
+		{
+			method: 'DELETE',
+		},
+	);
+};
+export const downloadExcelService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DownloadCenters/link-download/${id}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const getInfoImageService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/download-multiple-files-as-links?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const downloadImageService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/download-multiple-files-as-zip?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+			responseType: 'blob',
+		},
+	);
+};
+export const uploadImageService = (data) => {
+	console.log(data);
+	return request(
+		'https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/upload',
+		{
+			method: 'POST',
+			data: data,
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
 		},
 	);
 };

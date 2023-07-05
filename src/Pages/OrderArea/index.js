@@ -3,14 +3,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
 	deleteOrderAsync,
 	downloadAccountingAsync,
+	downloadImageAsync,
 	downloadLadingBillAsync,
 	exportGridAsync,
+	filterPhoneCusomerAsync,
 	getAllDeliveryOrder,
 	getDetailAccounting,
+	getDetailCustomerAsync,
 	getDetailOrderAsync,
+	getDetailShipperAsync,
+	getInfoImageAsync,
 	getSaleStaffAsync,
 	postOrderAsync,
 	selectOrder,
+	uploadImageAsync,
 } from '../../Slice/orderSlice';
 import {
 	Button,
@@ -31,8 +37,10 @@ import {
 	DatePicker,
 	InputNumber,
 	Card,
+	AutoComplete,
 } from 'antd';
 import './index.css';
+
 import { DeleteOutlined, EditOutlined, FundOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,15 +63,92 @@ const OrderArea = () => {
 	const dispatch = useDispatch();
 	const order = useSelector(selectOrder);
 	const { isloading } = order;
-
+	const detailOrder = order?.detailDeliveryOrder?.result;
 	const detailAccounting = order?.listAccounting?.result;
+	const [images, setImages] = useState([]);
 
+	const imagesLoaded = order?.listInfoImage?.result;
+	const handleFileChange = (e) => {
+		const fileList = e.target.files;
+		const imageList = Array.from(fileList);
+		setImages((prevImages) => [...prevImages, ...imageList]);
+	};
+	const handleDeleteImage = (index) => {
+		setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+	};
+	const downloadImage = async (id) => {
+		setIsModalOpenImage(false);
+		await dispatch(downloadImageAsync({ id, type: 'Product' }));
+	};
+	const uploadImageToWeb = async (data) => {
+		setIsModalOpenImage(false);
+		const formData = new FormData();
+		formData.append('id', data.id);
+		formData.append('type', 'Product');
+		images.forEach((images) => {
+			formData.append('files', images);
+		});
+		await dispatch(uploadImageAsync(formData));
+
+		await dispatch(getInfoImageAsync({ id: data.id, type: 'Product' }));
+		if (images.length === 0) {
+			toast.error('Upload ảnh thất bại!', {
+				position: 'top-right',
+				autoClose: 3000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: false,
+				progress: undefined,
+				theme: 'light',
+			});
+		} else {
+			toast.success('Upload ảnh thành công!', {
+				position: 'top-right',
+				autoClose: 3000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: false,
+				progress: undefined,
+				theme: 'light',
+			});
+		}
+	};
 	const clearForm = () => {
 		formSearch.resetFields();
 	};
 	const handleCancel = () => {
 		setIsModalOpen(false);
 		setDataTableProduct([]);
+	};
+	const shipperDetail = order.shipper?.result;
+	const customerDetail = order.shiperDetail?.result;
+	useEffect(() => {
+		if (shipperDetail) {
+			formAdd.setFieldsValue({
+				fromAddress: shipperDetail?.address,
+				shipper: shipperDetail?.name,
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [shipperDetail]);
+	useEffect(() => {
+		if (customerDetail) {
+			formAdd.setFieldsValue({
+				toAddress: customerDetail?.address,
+				consignee: customerDetail?.name,
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [customerDetail]);
+	const onChangePhone = (value, option) => {
+		const selectedID = option.id;
+		dispatch(getDetailCustomerAsync(selectedID));
+	};
+	const onChangePhone1 = (value, option) => {
+		const selectedID = option.id;
+		dispatch(getDetailShipperAsync(selectedID));
 	};
 	const onFinishSearch = async (values) => {
 		if (values.dateSearch) {
@@ -96,6 +181,10 @@ const OrderArea = () => {
 	const [isModalOpenCode, setIsModalOpenCode] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isModalOpenExcel, setIsModalOpenExcel] = useState(false);
+	const [isModalOpenImage, setIsModalOpenImage] = useState(false);
+	const handleCancelImage = () => {
+		setIsModalOpenImage(false);
+	};
 	const handleCancelExcel = () => {
 		setIsModalOpenExcel(false);
 	};
@@ -198,6 +287,7 @@ const OrderArea = () => {
 						/>
 					</Popconfirm>
 					<FundOutlined
+						onClick={() => uploadImage(record)}
 						style={{
 							fontSize: '24px',
 							cursor: 'pointer',
@@ -215,7 +305,12 @@ const OrderArea = () => {
 	const [formAdd] = Form.useForm();
 	const [formProduct] = Form.useForm();
 	useEffect(() => {
+		document.title = 'Khu vực đơn hàng - ANZEN';
+	}, []);
+
+	useEffect(() => {
 		dispatch(getSaleStaffAsync());
+		dispatch(filterPhoneCusomerAsync(pages));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	useEffect(() => {
@@ -224,12 +319,10 @@ const OrderArea = () => {
 	}, [pages]);
 
 	useEffect(() => {
-		setTimeout(() => {
-			order?.detailDeliveryOrder.result?.deliveryOrderDetails &&
-				setDataTableProduct(
-					order?.detailDeliveryOrder.result?.deliveryOrderDetails,
-				);
-		}, 1000);
+		order?.detailDeliveryOrder.result?.deliveryOrderDetails &&
+			setDataTableProduct(
+				order?.detailDeliveryOrder.result?.deliveryOrderDetails,
+			);
 	}, [order?.detailDeliveryOrder]);
 
 	const handleCheckbox = (e) => {
@@ -275,7 +368,7 @@ const OrderArea = () => {
 	const showStatus = (text) => {
 		return text === 'New' ? (
 			<Tooltip title="Đơn mới">
-				<Tag className="tag_status" color="#071ccf" />
+				<Tag className="tag_status" color="rgb(10, 124, 255)" />
 			</Tooltip>
 		) : text === 'Gone' ? (
 			<Tooltip title="Đơn hàng đã đi">
@@ -304,10 +397,26 @@ const OrderArea = () => {
 	const exportExcel = () => {
 		setIsModalOpenExcel(true);
 	};
+	const uploadImage = async (record) => {
+		setImages([]);
+		await dispatch(getDetailOrderAsync(record.id));
+		await dispatch(getInfoImageAsync({ id: record.id, type: 'Product' }));
+		setIsModalOpenImage(true);
+	};
 	const moveToExcel = async () => {
-		await dispatch(exportGridAsync(pages));
 		setIsModalOpenExcel(false);
+		await dispatch(exportGridAsync(pages));
 		navigate('/export-report');
+		toast.success('File cần tải mới nhất đã chuẩn bị xong!', {
+			position: 'top-right',
+			autoClose: 3000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: false,
+			progress: undefined,
+			theme: 'light',
+		});
 	};
 	const editProduct = (record) => {
 		formProduct.setFieldsValue({ ...record });
@@ -323,14 +432,10 @@ const OrderArea = () => {
 			const listProductAfterEdit = dataTableProduct.map((item) =>
 				item.id === values.id ? { ...item, ...values } : item,
 			);
-
 			setDataTableProduct(listProductAfterEdit);
-			alert('Sửa thành công');
-			console.log(listProductAfterEdit);
 			formProduct.resetFields();
 		} else {
 			const newProduct = { ...values, id: uuidv4() };
-			// console.log(newProduct);
 			setDataTableProduct([...dataTableProduct, newProduct]);
 			formProduct.resetFields();
 		}
@@ -361,12 +466,12 @@ const OrderArea = () => {
 				orderDate: values.orderDate.format(DATE_FORMAT),
 				deliveryOrderDetails: dataTableProduct,
 			};
+			setIsModalOpen(false);
 			await dispatch(postOrderAsync(data));
 			dispatch(getAllDeliveryOrder(pages));
 			if (values.isGenCode === true) {
 				dispatch(downloadLadingBillAsync(values.id));
 			}
-			setIsModalOpen(false);
 			// dispatch(getAllDeliveryOrder(pages));
 			if (values.id) {
 				toast.success('Sửa thành công!', {
@@ -407,6 +512,8 @@ const OrderArea = () => {
 			theme: 'light',
 		});
 	};
+	const optionPhone = order?.filterPhoneShipper?.result?.items;
+
 	const columnTableProduct = [
 		{
 			title: 'Tên hàng',
@@ -443,20 +550,17 @@ const OrderArea = () => {
 			dataIndex: 'nvkd',
 			key: 'nvkd',
 			width: 150,
+			align: 'center',
 			render: (_, record) => (
 				<Space size="middle">
-					<EditOutlined
-						type="text"
-						onClick={() => editProduct(record)}
-						className="editIcon"
-					/>
+					<Button onClick={() => editProduct(record)}>Sửa</Button>
 					<Popconfirm
 						title="Bạn có đồng ý xóa?"
 						onConfirm={() => deleteProduct(record)}
 						okText="OK"
 						cancelText="Cancel"
 					>
-						<DeleteOutlined className="deleteIcon" />
+						<Button danger>Xoá</Button>
 					</Popconfirm>
 				</Space>
 			),
@@ -691,28 +795,16 @@ const OrderArea = () => {
 				<Row className="pb-3">
 					<Col xs={24} sm={18} md={18}>
 						<Space>
-							<Button
-								onClick={clearForm}
-								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
-							>
+							<Button onClick={clearForm} className="btn-yellow">
 								Clear
 							</Button>
-							<Button
-								htmlType="submit"
-								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
-							>
+							<Button htmlType="submit" className="btn-yellow">
 								Tìm kiếm
 							</Button>
-							<Button
-								onClick={exportExcel}
-								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
-							>
+							<Button onClick={exportExcel} className="btn-yellow">
 								Export Excel
 							</Button>
-							<Button
-								onClick={createOrder}
-								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
-							>
+							<Button onClick={createOrder} className="btn-yellow">
 								Tạo mới đơn
 							</Button>
 							<Checkbox onChange={handleCheckbox}>Tìm kiếm nâng cao</Checkbox>
@@ -746,12 +838,14 @@ const OrderArea = () => {
 							Đóng
 						</Button>,
 						<Button
+							className="btn-yellow"
 							key="downloadAccountant"
 							onClick={() => downloadAccountant(detailAccounting.id)}
 						>
 							Tải xuống kế toán
 						</Button>,
 						<Button
+							className="btn-yellow"
 							key=""
 							onClick={() => downloadLadingBill(detailAccounting.id)}
 						>
@@ -912,6 +1006,7 @@ const OrderArea = () => {
 							<Col span={24}>
 								<strong>Trung chuyển</strong>
 								<Table
+									rowKey={(record) => record.id}
 									columns={columnsTransborder}
 									dataSource={
 										detailAccounting?.ladingInfos &&
@@ -925,6 +1020,7 @@ const OrderArea = () => {
 							<Col span={24}>
 								<strong>Phí nhận hàng</strong>
 								<Table
+									rowKey={(record) => record.id}
 									columns={columnsReceiving}
 									dataSource={
 										detailAccounting?.ladingInfos &&
@@ -938,6 +1034,7 @@ const OrderArea = () => {
 							<Col span={24}>
 								<strong>Phí bo giao hàng</strong>
 								<Table
+									rowKey={(record) => record.id}
 									columns={columnsFreight}
 									dataSource={
 										detailAccounting?.ladingInfos &&
@@ -951,6 +1048,7 @@ const OrderArea = () => {
 							<Col span={24}>
 								<strong>Phí khác</strong>
 								<Table
+									rowKey={(record) => record.id}
 									columns={columnsOther}
 									dataSource={
 										detailAccounting?.ladingInfos && detailAccounting?.otherFees
@@ -962,7 +1060,11 @@ const OrderArea = () => {
 						<Row>
 							<Col span={24}>
 								<strong>Thông tin tài xế</strong>
-								<Table columns={columnsDrivers} dataSource={null} />
+								<Table
+									rowKey={(record) => record.id}
+									columns={columnsDrivers}
+									dataSource={null}
+								/>
 							</Col>
 						</Row>
 					</Spin>
@@ -996,6 +1098,35 @@ const OrderArea = () => {
 					</Col>
 				</Row>
 			</div>
+			<Modal open={isModalOpenExcel} footer={null}>
+				<p style={{ fontSize: 16 }}>Thông báo</p>
+				<hr />
+				<p>
+					Bạn có muốn chuyển hướng qua màn hình Export Report để tải file không?
+				</p>
+				<hr />
+				<Row justify="end">
+					<Col>
+						<Space>
+							<Button
+								className="btn-normal"
+								key="close"
+								onClick={handleCancelExcel}
+							>
+								Cancel
+							</Button>
+
+							<Button
+								className="btn-yellow"
+								key="movetoexcel"
+								onClick={moveToExcel}
+							>
+								OK
+							</Button>
+						</Space>
+					</Col>
+				</Row>
+			</Modal>
 			<Modal
 				getContainer={false}
 				title={titleForm === 'create' ? 'Tạo đơn mới' : 'Sửa đơn'}
@@ -1006,413 +1137,506 @@ const OrderArea = () => {
 				width={'50%'}
 				footer={
 					<Space>
-						<Button htmlType="submit" form="formAdd">
+						<Button className="btn-normal" onClick={handleCancel}>
+							Đóng
+						</Button>
+						<Button htmlType="submit" form="formAdd" className="btn-yellow">
 							Gửi
 						</Button>
-						<Button onClick={handleCancel}>Close</Button>
 					</Space>
 				}
 			>
-				<Spin tip="Loading..." spinning={isloading} size="large">
-					<Form
-						labelCol={{ span: 24 }}
-						wrapperCol={{ span: 24 }}
-						onFinish={onFinishCreateEdit}
-						autoComplete="off"
-						layout="vertical"
-						form={formAdd}
-						name="formAdd"
-					>
-						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Tạo mã vận đơn"
-									name="isGenCode"
-									rules={[{ required: true, message: 'Vui lòng lựa chọn!' }]}
-								>
-									<Radio.Group>
-										<Radio value={true}> Tạo </Radio>
-										<Radio value={false}> Không tạo </Radio>
-									</Radio.Group>
-								</Form.Item>
-							</Col>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Nhân viên kinh doanh"
-									name="saleStaff"
-									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-								>
-									<Select placeholder="Chọn Nhân viên kinh doanh">
-										{order.saleStaff.map((item, index) => (
-											<Select.Option key={index} value={item.userName}>
-												{item.fullName}
-											</Select.Option>
-										))}
-									</Select>
-								</Form.Item>
-							</Col>
-						</Row>
-						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item label="Số mã" name="id">
-									<Input disabled style={{ color: '#ffbd2f' }} />
-								</Form.Item>
-							</Col>
-							<Col xs={24} sm={24} md={12}>
-								{formAdd.setFieldsValue({ orderDate: dayjs(new Date()) })}
-								<Form.Item
-									label="Ngày tạo"
-									name="orderDate"
-									rules={[
-										{ required: true, message: 'Vui lòng nhập ngày tạo!' },
-									]}
-								>
-									<DatePicker style={{ width: '100%' }} format={DATE_FORMAT} />
-								</Form.Item>
-							</Col>
-						</Row>
-						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Người gửi"
-									name="shipper"
-									rules={[
-										{ required: true, message: 'Vui lòng nhập Người gửi!' },
-									]}
-								>
-									<Input />
-								</Form.Item>
-							</Col>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Người nhận"
-									name="consignee"
-									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-								>
-									<Input />
-								</Form.Item>
-							</Col>
-						</Row>
-						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Địa chỉ gửi"
-									name="fromAddress"
-									rules={[
-										{
-											required: true,
-											message: 'Vui lòng nhập Địa chỉ gửi!',
-										},
-									]}
-								>
-									<Input />
-								</Form.Item>
-							</Col>
-							<Col xs={24} sm={12} md={6}>
-								<Form.Item
-									label="Địa chỉ nhận"
-									name="toAddress"
-									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-								>
-									<Input />
-								</Form.Item>
-							</Col>
-							<Col xs={24} sm={12} md={6}>
-								<Form.Item
-									label="Tỉnh"
-									name="provinceCode"
-									rules={[{ required: true, message: 'Vui lòng nhập Tỉnh!' }]}
-								>
-									<Select
-										placeholder="Chọn Tỉnh"
-										options={PROVINCE.map((item, index) => ({
-											value: item.code,
-											label: item.name,
+				<Form
+					labelCol={{ span: 24 }}
+					wrapperCol={{ span: 24 }}
+					onFinish={onFinishCreateEdit}
+					autoComplete="off"
+					layout="vertical"
+					form={formAdd}
+					name="formAdd"
+				>
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Tạo mã vận đơn"
+								name="isGenCode"
+								rules={[{ required: true, message: 'Vui lòng lựa chọn!' }]}
+							>
+								<Radio.Group>
+									<Radio value={true}> Tạo </Radio>
+									<Radio value={false}> Không tạo </Radio>
+								</Radio.Group>
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Nhân viên kinh doanh"
+								name="saleStaff"
+								rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+							>
+								<Select placeholder="Chọn Nhân viên kinh doanh">
+									{order.saleStaff.map((item, index) => (
+										<Select.Option key={index} value={item.userName}>
+											{item.fullName}
+										</Select.Option>
+									))}
+								</Select>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item label="Số mã" name="id">
+								<Input disabled style={{ color: '#ffbd2f' }} />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={24} md={12}>
+							{formAdd.setFieldsValue({ orderDate: dayjs(new Date()) })}
+							<Form.Item
+								label="Ngày tạo"
+								name="orderDate"
+								rules={[{ required: true, message: 'Vui lòng nhập ngày tạo!' }]}
+							>
+								<DatePicker style={{ width: '100%' }} format={DATE_FORMAT} />
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Người gửi"
+								name="shipper"
+								rules={[
+									{ required: true, message: 'Vui lòng nhập Người gửi!' },
+								]}
+							>
+								<Input />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Người nhận"
+								name="consignee"
+								rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+							>
+								<Input />
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Địa chỉ gửi"
+								name="fromAddress"
+								rules={[
+									{
+										required: true,
+										message: 'Vui lòng nhập Địa chỉ gửi!',
+									},
+								]}
+							>
+								<Input />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12} md={6}>
+							<Form.Item
+								label="Địa chỉ nhận"
+								name="toAddress"
+								rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+							>
+								<Input />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12} md={6}>
+							<Form.Item
+								label="Tỉnh"
+								name="provinceCode"
+								rules={[{ required: true, message: 'Vui lòng nhập Tỉnh!' }]}
+							>
+								<Select
+									placeholder="Chọn Tỉnh"
+									options={PROVINCE.map((item, index) => ({
+										value: item.code,
+										label: item.name,
+										key: index,
+									}))}
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Số điện thoại người gửi"
+								name="shipperPhone"
+								rules={[
+									{
+										required: true,
+										message: 'Vui lòng nhập Số điện thoại người gửi!',
+									},
+								]}
+							>
+								<AutoComplete
+									style={{
+										width: '100%',
+									}}
+									options={
+										optionPhone &&
+										optionPhone.map((item, index) => ({
+											label: item.phone,
+											value: item.phone,
 											key: index,
-										}))}
-									/>
-								</Form.Item>
-							</Col>
-						</Row>
+											id: item.id,
+										}))
+									}
+									onChange={onChangePhone1}
+								/>
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Số điện thoại người nhận"
+								name="consigneePhone"
+								rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+							>
+								<AutoComplete
+									style={{
+										width: '100%',
+									}}
+									options={
+										optionPhone &&
+										optionPhone.map((item, index) => ({
+											label: item.phone,
+											value: item.phone,
+											key: index,
+											id: item.id,
+										}))
+									}
+									onChange={onChangePhone}
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Hình thức nhận hàng"
+								name="receiveType"
+								rules={[
+									{
+										required: true,
+										message: 'Vui lòng nhập Hình thức nhận hàng!',
+									},
+								]}
+							>
+								<Select
+									placeholder="Chọn Trạng thái đơn hàng"
+									options={ORDER_STATUS}
+								/>
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Hình thức giao hàng"
+								name="sendType"
+								rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+							>
+								<Select
+									placeholder="Chọn Hình thức giao hàng"
+									options={DELIVERY_TYPE}
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Hình thức thanh toán"
+								name="paymentType"
+								rules={[
+									{
+										required: true,
+										message: 'Vui lòng nhập Hình thức thanh toán!',
+									},
+								]}
+							>
+								<Select
+									onChange={handleChangeSelectPaymentType}
+									placeholder="Chọn Hình thức thanh toán"
+									options={PAYMENT_TYPE}
+								/>
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item
+								label="Cước vận chuyển"
+								name="totalAmount"
+								rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+							>
+								<InputNumber />
+							</Form.Item>
+						</Col>
+					</Row>
+					{isShowMultiPaymentType && (
 						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
+							<Col xs={24} sm={24} md={6}>
 								<Form.Item
-									label="Số điện thoại người gửi"
-									name="shipperPhone"
-									rules={[
-										{
-											required: true,
-											message: 'Vui lòng nhập Số điện thoại người gửi!',
-										},
-									]}
-								>
-									<Input placeholder="Nhập số điện thoại người gửi" />
-								</Form.Item>
-							</Col>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Số điện thoại người nhận"
-									name="consigneePhone"
-									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-								>
-									<Input placeholder="Nhập số điện thoại người nhận" />
-								</Form.Item>
-							</Col>
-						</Row>
-						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Hình thức nhận hàng"
-									name="receiveType"
-									rules={[
-										{
-											required: true,
-											message: 'Vui lòng nhập Hình thức nhận hàng!',
-										},
-									]}
+									label="Tên HTTT1"
+									name="paymentType1"
+									className="multi-payment-type-left"
 								>
 									<Select
-										placeholder="Chọn Trạng thái đơn hàng"
-										options={ORDER_STATUS}
-									/>
-								</Form.Item>
-							</Col>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Hình thức giao hàng"
-									name="sendType"
-									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
-								>
-									<Select
-										placeholder="Chọn Hình thức giao hàng"
-										options={DELIVERY_TYPE}
-									/>
-								</Form.Item>
-							</Col>
-						</Row>
-						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item
-									label="Hình thức thanh toán"
-									name="paymentType"
-									rules={[
-										{
-											required: true,
-											message: 'Vui lòng nhập Hình thức thanh toán!',
-										},
-									]}
-								>
-									<Select
-										onChange={handleChangeSelectPaymentType}
 										placeholder="Chọn Hình thức thanh toán"
-										options={PAYMENT_TYPE}
+										options={PAYMENT_TYPE_MULTI}
 									/>
 								</Form.Item>
 							</Col>
-							<Col xs={24} sm={24} md={12}>
+							<Col xs={24} sm={24} md={6}>
 								<Form.Item
-									label="Cước vận chuyển"
-									name="totalAmount"
-									rules={[{ required: true, message: 'Vui lòng nhập!' }]}
+									label="Số tiền"
+									name="paymentTypeValue1"
+									className="multi-payment-type-right"
+								>
+									<InputNumber />
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={6}>
+								<Form.Item
+									label="Tên HTTT2"
+									name="paymentType2"
+									className="multi-payment-type-left"
+								>
+									<Select
+										placeholder="Chọn Hình thức thanh toán"
+										options={PAYMENT_TYPE_MULTI}
+									/>
+								</Form.Item>
+							</Col>
+							<Col xs={24} sm={24} md={6}>
+								<Form.Item
+									label="Số tiền"
+									name="paymentTypeValue2"
+									className="multi-payment-type-right"
 								>
 									<InputNumber />
 								</Form.Item>
 							</Col>
 						</Row>
-						{isShowMultiPaymentType && (
+					)}
+					<Row gutter={24}>
+						<Col xs={24} sm={24} md={12}>
+							<Form.Item label="Phát sinh khác" name="additionalAmount">
+								<Input />
+							</Form.Item>
+						</Col>
+					</Row>
+				</Form>
+				<Form
+					labelCol={{ span: 24 }}
+					wrapperCol={{ span: 24 }}
+					autoComplete="off"
+					layout="vertical"
+					onFinish={onChangeTaleProduct}
+					form={formProduct}
+					name="formProduct"
+				>
+					<Card title="Tao/ Sua don hang" style={{ backgroundColor: '#ccc' }}>
+						<Form.Item name="id" hidden={true}>
+							<Input />
+						</Form.Item>
+						<div style={{ padding: 20 }}>
 							<Row gutter={24}>
-								<Col xs={24} sm={24} md={6}>
+								<Col xs={24} sm={24} md={12}>
 									<Form.Item
-										label="Tên HTTT1"
-										name="paymentType1"
-										className="multi-payment-type-left"
+										label="Tên hàng"
+										name="name"
+										rules={[
+											{ required: true, message: 'Vui lòng nhập tên hàng!' },
+										]}
 									>
-										<Select
-											placeholder="Chọn Hình thức thanh toán"
-											options={PAYMENT_TYPE_MULTI}
-										/>
+										<Input />
 									</Form.Item>
 								</Col>
-								<Col xs={24} sm={24} md={6}>
+								<Col xs={24} sm={24} md={12}>
 									<Form.Item
-										label="Số tiền"
-										name="paymentTypeValue1"
-										className="multi-payment-type-right"
+										label="Số lượng"
+										name="quantity"
+										rules={[
+											{ required: true, message: 'Vui lòng nhập Số lượng!' },
+										]}
 									>
-										<InputNumber />
-									</Form.Item>
-								</Col>
-								<Col xs={24} sm={24} md={6}>
-									<Form.Item
-										label="Tên HTTT2"
-										name="paymentType2"
-										className="multi-payment-type-left"
-									>
-										<Select
-											placeholder="Chọn Hình thức thanh toán"
-											options={PAYMENT_TYPE_MULTI}
-										/>
-									</Form.Item>
-								</Col>
-								<Col xs={24} sm={24} md={6}>
-									<Form.Item
-										label="Số tiền"
-										name="paymentTypeValue2"
-										className="multi-payment-type-right"
-									>
-										<InputNumber />
+										<InputNumber min={1} max={1000} />
 									</Form.Item>
 								</Col>
 							</Row>
-						)}
-						<Row gutter={24}>
-							<Col xs={24} sm={24} md={12}>
-								<Form.Item label="Phát sinh khác" name="additionalAmount">
-									<Input />
-								</Form.Item>
-							</Col>
-						</Row>
-					</Form>
-					<Form
-						labelCol={{ span: 24 }}
-						wrapperCol={{ span: 24 }}
-						autoComplete="off"
-						layout="vertical"
-						onFinish={onChangeTaleProduct}
-						form={formProduct}
-						name="formProduct"
-					>
-						<Card title="Tao/ Sua don hang" style={{ backgroundColor: '#ccc' }}>
-							<Form.Item name="id" hidden={true}>
-								<Input />
-							</Form.Item>
-							<div style={{ padding: 20 }}>
-								<Row gutter={24}>
-									<Col xs={24} sm={24} md={12}>
-										<Form.Item
-											label="Tên hàng"
-											name="name"
-											rules={[
-												{ required: true, message: 'Vui lòng nhập tên hàng!' },
-											]}
-										>
-											<Input />
-										</Form.Item>
-									</Col>
-									<Col xs={24} sm={24} md={12}>
-										<Form.Item
-											label="Số lượng"
-											name="quantity"
-											rules={[
-												{ required: true, message: 'Vui lòng nhập Số lượng!' },
-											]}
-										>
-											<InputNumber min={1} max={1000} />
-										</Form.Item>
-									</Col>
-								</Row>
-								<Row gutter={24}>
-									<Col xs={24} sm={24} md={12}>
-										<Form.Item
-											label="Khối lượng"
-											name="mass"
-											rules={[
-												{
-													required: true,
-													message: 'Vui lòng nhập Khối lượng!',
-												},
-											]}
-										>
-											<InputNumber min={1} max={1000} />
-										</Form.Item>
-									</Col>
-									<Col xs={24} sm={24} md={12}>
-										<Form.Item
-											label="Trọng lượng"
-											name="weight"
-											rules={[
-												{
-													required: true,
-													message: 'Vui lòng nhập Trọng lượng!',
-												},
-											]}
-										>
-											<InputNumber min={1} max={100} />
-										</Form.Item>
-									</Col>
-								</Row>
-								<Row gutter={24}>
-									<Col xs={24} sm={24} md={12}>
-										<Form.Item
-											label="Đơn vị tính"
-											name="unit"
-											rules={[
-												{
-													required: true,
-													message: 'Vui lòng nhập Đơn vị tính!',
-												},
-											]}
-										>
-											<Input />
-										</Form.Item>
-									</Col>
-									<Col xs={24} sm={24} md={12}>
-										<Form.Item
-											label="Ghi chú"
-											name="note"
-											rules={[
-												{ required: true, message: 'Vui lòng nhập Ghi chú!' },
-											]}
-										>
-											<Input />
-										</Form.Item>
-									</Col>
-								</Row>
-								<Button
-									style={{
-										backgroundColor: '#ffbd2f',
-										color: '#fff',
-									}}
-									htmlType="submit"
-									form="formProduct"
-									name="formProduct"
-								>
-									Thêm
-								</Button>
-							</div>
-						</Card>
-					</Form>
-					<div className="pt-3">
-						{dataTableProduct.length > 0 && (
-							<Table
-								dataSource={dataTableProduct}
-								columns={columnTableProduct}
-							/>
-						)}
-					</div>
-				</Spin>
+							<Row gutter={24}>
+								<Col xs={24} sm={24} md={12}>
+									<Form.Item
+										label="Khối lượng"
+										name="mass"
+										rules={[
+											{
+												required: true,
+												message: 'Vui lòng nhập Khối lượng!',
+											},
+										]}
+									>
+										<InputNumber min={1} max={1000} />
+									</Form.Item>
+								</Col>
+								<Col xs={24} sm={24} md={12}>
+									<Form.Item
+										label="Trọng lượng"
+										name="weight"
+										rules={[
+											{
+												required: true,
+												message: 'Vui lòng nhập Trọng lượng!',
+											},
+										]}
+									>
+										<InputNumber min={1} max={100} />
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row gutter={24}>
+								<Col xs={24} sm={24} md={12}>
+									<Form.Item
+										label="Đơn vị tính"
+										name="unit"
+										rules={[
+											{
+												required: true,
+												message: 'Vui lòng nhập Đơn vị tính!',
+											},
+										]}
+									>
+										<Input />
+									</Form.Item>
+								</Col>
+								<Col xs={24} sm={24} md={12}>
+									<Form.Item
+										label="Ghi chú"
+										name="note"
+										rules={[
+											{ required: true, message: 'Vui lòng nhập Ghi chú!' },
+										]}
+									>
+										<Input />
+									</Form.Item>
+								</Col>
+							</Row>
+							<Button
+								style={{
+									backgroundColor: '#ffbd2f',
+									color: '#fff',
+								}}
+								htmlType="submit"
+								form="formProduct"
+								name="formProduct"
+							>
+								Thêm
+							</Button>
+						</div>
+					</Card>
+				</Form>
+				<div className="pt-3">
+					{dataTableProduct.length > 0 && (
+						<Table dataSource={dataTableProduct} columns={columnTableProduct} />
+					)}
+				</div>
 			</Modal>
-			<Spin tip="Loading..." loading={isloading}>
-				<Modal
-					title="Thông báo"
-					open={isModalOpenExcel}
-					footer={[
-						<Button key="close" onClick={handleCancelExcel}>
-							Cancel
-						</Button>,
-						<Button key="movetoexcel" onClick={moveToExcel}>
-							OK
-						</Button>,
-					]}
-				>
-					<hr />
-					<p>
-						Bạn có muốn chuyển hướng qua màn hình Export Report để tải file
-						không?
-					</p>
-					<hr />
-				</Modal>
-			</Spin>
+			<Modal
+				title="THÔNG TIN HÌNH ẢNH"
+				open={isModalOpenImage}
+				onCancel={handleCancelImage}
+				footer={[
+					<Button key="back" onClick={handleCancelImage}>
+						Đóng
+					</Button>,
+					<Button
+						className="btn-yellow"
+						key="downloadImage"
+						onClick={() => downloadImage(detailOrder?.id)}
+					>
+						Tải ảnh xuống
+					</Button>,
+					<Button
+						className="btn-yellow"
+						key="uploadImage"
+						onClick={() => uploadImageToWeb(detailOrder)}
+					>
+						Gửi hình ảnh
+					</Button>,
+				]}
+			>
+				<Row gutter={24}>
+					<Col xs={12}>
+						<strong>Tên hàng: </strong> {detailOrder?.name}
+					</Col>
+					<Col xs={12}>
+						<strong>NVKD: </strong> {detailOrder?.saleStaff}
+					</Col>
+					<Col xs={12}>
+						<strong>Hình thức thu tiền: </strong>
+						{detailOrder?.paymentType}
+					</Col>
+					<Col xs={12}>
+						<strong>Số tiền: </strong>
+						{detailOrder?.totalAmount}
+					</Col>
+				</Row>
+				<div>
+					<div className="upload_Wrapper">
+						<button className="btn-upload">Tải hình ảnh</button>
+						<input
+							type="file"
+							name="myfile"
+							multiple
+							onChange={handleFileChange}
+							accept="image/png, image/gif,image/jpeg,image/jpg"
+						/>
+					</div>
+					<br />
+					<Row gutter={24}>
+						{images?.map((image, index) => (
+							<Col xs={24} sm={24} md={12} key={index}>
+								<div className="container_image">
+									<img
+										width={'100%'}
+										height={200}
+										src={URL.createObjectURL(image)}
+										alt={`Hình ${index}`}
+									/>
+
+									<div className="middle-delete">
+										<div
+											className="text-delete"
+											onClick={() => handleDeleteImage(index)}
+										>
+											Xoá ảnh
+										</div>
+									</div>
+								</div>
+							</Col>
+						))}
+					</Row>
+					<Row gutter={24}>
+						{imagesLoaded?.map((image, index) => (
+							<Col xs={24} sm={24} md={12} key={index}>
+								<div className="container_image">
+									<img
+										width={'100%'}
+										height={200}
+										src={image}
+										alt={`Hình ${index}`}
+									/>
+								</div>
+							</Col>
+						))}
+					</Row>
+				</div>
+			</Modal>
 		</Spin>
 	);
 };

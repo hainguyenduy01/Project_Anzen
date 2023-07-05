@@ -5,8 +5,11 @@ import logo from '../../assets/img/logo.png';
 import './loginPage.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 const Login = () => {
+	useEffect(() => {
+		document.title = 'Login - ANZEN';
+	}, []);
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -14,7 +17,9 @@ const Login = () => {
 		setIsLoading(true);
 		const response = await LoginService(values);
 		if (response.status === 200) {
-			localStorage.setItem('token', response.data.access_token);
+			localStorage.setItem('access_token', response.data.access_token);
+			localStorage.setItem('refresh_token', response.data.refresh_token);
+			localStorage.setItem('expires_in', response.data.expires_in);
 			const responseProfile = await getUserProfile();
 			if (responseProfile.status === 200) {
 				navigate('/');
