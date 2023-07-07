@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
-import { createPolicyService, deletePolicyService, getAllPolicyService, updatePolicyService } from "../Services/policyService";
+import { createPolicyService, deletePolicyService, exportGridEService, getAllPolicyService, updatePolicyService } from "../Services/policyService";
 
 const initialState= {
     isLoading: false,
@@ -34,6 +34,14 @@ export const updatePolicyAsync = createAsyncThunk(
         return response.data;
     }
 );
+export const exportGridAsync = createAsyncThunk(
+	'exportGrid',
+	async (params) => {
+		const response = await exportGridEService(params);
+
+		return response.data;
+	},
+);
 
 
 export const policySlice = createSlice({
@@ -48,7 +56,7 @@ export const policySlice = createSlice({
         .addCase(getAllPolicyAsync.fulfilled,(state, action) =>{
             if(action.payload){
                 state.isLoading = false;
-                state.listDriver = action.payload;
+                state.listPolicy = action.payload;
             }
         })
         .addCase(deletePolicyAsync.pending,(state) =>{
@@ -67,6 +75,14 @@ export const policySlice = createSlice({
             if(action.payload){
                 state.isLoading = false;
                 state.list = action.payload;
+            }
+        })
+        .addCase(exportGridAsync.pending, (state) => {
+            state.isloading = true;
+        })
+        .addCase(exportGridAsync.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.isloading = false;
             }
         })
         .addCase(updatePolicyAsync.pending,(state) =>{
