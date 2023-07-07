@@ -178,15 +178,15 @@ const Accountant = () => {
     setIsModalOpenCode(true);
   };
   const onFinishSearch = (values) => {
-    // console.log(values?.dateSearch);
+    console.log(values?.dateSearch);
     const params = {
       ...values,
-      codeDateFrom:
+      LadingDateFrom:
         values?.dateSearch &&
         dayjs(values?.dateSearch?.[0]?.startOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
         ),
-      codeDateTo:
+        LadingDateTo:
         values?.dateSearch &&
         dayjs(values?.dateSearch?.[1]?.endOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
