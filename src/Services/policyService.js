@@ -29,3 +29,13 @@ export const updatePolicyService = (id, data) => {
         data
     })
 }
+export const exportGridEService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/export-grid?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
