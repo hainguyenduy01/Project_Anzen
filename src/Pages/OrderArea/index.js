@@ -337,6 +337,7 @@ const OrderArea = () => {
 		await dispatch(getDetailAccounting(id));
 		setIsModalOpenCode(true);
 	};
+	
 	const showCode = (code, record) => {
 		return code === false ? (
 			<Tag color="#E61134" />

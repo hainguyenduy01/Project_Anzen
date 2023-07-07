@@ -171,3 +171,13 @@ export const uploadImageService = (data) => {
 		},
 	);
 };
+export const getReportService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/RevenueBaselines?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};

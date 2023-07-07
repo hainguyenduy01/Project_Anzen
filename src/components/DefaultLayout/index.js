@@ -87,6 +87,11 @@ const DefaultLayout = () => {
 			label: 'Tài xế',
 		},
 		{
+			key: '/reports',
+			icon: <SwapOutlined />,
+			label: 'Báo cáo',
+		},
+		{
 			key: '/export-report',
 			icon: <OrderedListOutlined />,
 			label: 'Lịch sử tải xuống ',
