@@ -25,6 +25,8 @@ import { useNavigate } from "react-router-dom";
 import { FORMATS_DATE } from "../../Utils/constants";
 import dayjs from "dayjs";
 
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+
 const Customers = () => {
   const { RangePicker } = DatePicker;
   const [form] = Form.useForm();
@@ -76,12 +78,13 @@ const Customers = () => {
     formSearch.resetFields();
     setPages(values);
   };
+
   const [customerListData, setCustomerListData] = useState([]);
   const createCustomer = () => {
     form.resetFields();
     setTitleForm("create");
     setIsModalOpen(true);
-    setCustomerListData(customersList?.result?.items);
+    setCustomerListData(customerListData?.customersList?.result?.items);
   };
   const deleteCustomer = async (id) => {
     await dispatch(deleteCustomerAsync(id));
@@ -103,14 +106,7 @@ const Customers = () => {
       title: "STT",
       dataIndex: "id",
       key: "index",
-      render: (_, record, index) => <p>{index + 1}</p>,
-      // render: (value, item, index) => (pages - 1) * 10 + index,
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "createdDate",
-      key: "createdDate",
-      render: (text, record) => dayjs(text).format("DD/MM/YYYY"),
+      render: (_, record, index) => (pages.PageIndex - 1) * 10 + index + 1,
     },
     {
       title: "Tên",
@@ -134,42 +130,32 @@ const Customers = () => {
     },
     {
       title: "Chi tiết khách hàng",
-      dataIndex: "decription",
-      key: "decription",
+      dataIndex: "description",
+      key: "description",
     },
     {
       title: "Hoạt động",
       key: "activity",
-      render: (_, record) => (
-        <Space size="middle">
-          <button
-            style={{ border: "none", background: "white" }}
-            onClick={() => updateCustomer(record)}
-          >
-            <i
-              className="fa-solid fa-pen-to-square"
-              style={{ color: "green" }}
-            ></i>
-          </button>
-          <Popconfirm
-            title="Bạn có đồng ý xóa không?"
-            onConfirm={() => deleteCustomer(record.id)}
-            okText="OK"
-            cancelText="Cancel"
-          >
-            <i className="fa-solid fa-trash" style={{ color: "red" }}></i>
-          </Popconfirm>
-        </Space>
-      ),
+      render: (record) => (
+				<Space size={20}>
+					<EditOutlined
+						onClick={() => updateCustomer(record)}
+						style={{ fontSize: '24px', cursor: 'pointer', color: 'green' }}
+					/>
+					<Popconfirm
+						title="Bạn có đồng ý xóa?"
+						onConfirm={() => deleteCustomer(record.id)}
+						okText="OK"
+						cancelText="Cancel"
+					>
+						<DeleteOutlined
+							style={{ fontSize: '24px', cursor: 'pointer', color: 'red' }}
+						/>
+					</Popconfirm>
+				</Space>
+      )
     },
   ];
-  // const handleTableChange = (page) => {
-  //   const values = {
-  //     pageIndex: page.current,
-  //     pageSize: page.pageSize,
-  //   };
-  //   setPages(values);
-  // };
 
   const onFinishSearch = (values) => {
     // console.log(values?.dateSearch);
@@ -180,7 +166,7 @@ const Customers = () => {
         dayjs(values?.dateSearch?.[0]?.startOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
         ),
-        createdDateTo:
+      createdDateTo:
         values?.dateSearch &&
         dayjs(values?.dateSearch?.[1]?.endOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
@@ -335,7 +321,7 @@ const Customers = () => {
           onFinish={onFinish}
           autoComplete="off"
         >
-          <Form.Item label="ID" name="id">
+          <Form.Item label="ID" name="id" hidden={true}>
             <Input disabled />
           </Form.Item>
           <Form.Item
@@ -387,7 +373,7 @@ const Customers = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item label="Thông tin chi tiết:" name="decription">
+          <Form.Item label="Thông tin chi tiết:" name="description">
             <Input />
           </Form.Item>
         </Form>
