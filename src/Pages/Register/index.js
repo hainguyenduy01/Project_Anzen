@@ -34,6 +34,9 @@ const Register = () => {
 
 	const columns = [
 		{
+			title: "STT",
+			dataIndex: "id",
+			key: "id",
 			render: (_, record, index) => <p>{index + 1}</p>,
 		},
 		{
@@ -79,17 +82,11 @@ const Register = () => {
 	];
 
 	const handleTableChange = (page) => {
-		const params = {
+		const values = {
 			pageIndex: page.current,
 			pageSize: page.pageSize,
 		};
-
-		const values = {
-			pageIndex: params.pageIndex,
-			pageSize: params.pageSize,
-		};
-
-		dispatch(getAllUserAsync(values));
+		setPages(values);
 	};
 
 	return (
