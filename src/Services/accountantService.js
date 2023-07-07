@@ -9,3 +9,11 @@ export const getBillOfLadingsService = (data) => {
 		},
 	);
 };
+export const getAccountingService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/${id}`,
+		{
+			method: 'GET',
+		},
+	);
+};

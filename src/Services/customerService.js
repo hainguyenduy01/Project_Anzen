@@ -18,3 +18,13 @@ export const createCustomerService = (data) => {
         data
     })
 }
+export const exportGridEService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/Customers/export-grid?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};

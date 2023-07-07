@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createCustomerService, deleteCustomerService, getAllCustomerService} from "../Services/customerService";
+import { createCustomerService, deleteCustomerService, exportGridEService, getAllCustomerService} from "../Services/customerService";
 
 const initialState = {
   isLoading: false,
@@ -25,6 +25,14 @@ export const createCustomerAsync = createAsyncThunk(
     const response = await createCustomerService(params);
     return response.data;
   }
+);
+export const exportGridAsync = createAsyncThunk(
+	'exportGrid',
+	async (params) => {
+		const response = await exportGridEService(params);
+
+		return response.data;
+	},
 );
 export const customerSlice = createSlice({
   name: "listCustomers",
@@ -60,6 +68,14 @@ export const customerSlice = createSlice({
           state.list = action.payload;
         }
       })
+      .addCase(exportGridAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(exportGridAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.isloading = false;
+				}
+			})
   },
 });
 export const selectCustomers = (state) => state.listCustomers;
