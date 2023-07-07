@@ -173,7 +173,7 @@ const OrderArea = () => {
 
 	useEffect(() => {
 		dispatch(getAllDeliveryOrder(pages));
-		setFilterColumn(columns);
+		setFilterColumn(comlumnsfilter);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pages]);
 	const [isModalOpenCode, setIsModalOpenCode] = useState(false);

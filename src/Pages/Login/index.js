@@ -6,7 +6,12 @@ import './loginPage.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 const Login = () => {
+	const { i18n, t } = useTranslation();
+	const translate = (lang) => {
+		i18n.changeLanguage(lang);
+	};
 	useEffect(() => {
 		document.title = 'Login - ANZEN';
 	}, []);
@@ -94,7 +99,7 @@ const Login = () => {
 									},
 								]}
 							>
-								<Input className="inputLogin" placeholder="Username" />
+								<Input className="inputLogin" placeholder={t('Username')} />
 							</Form.Item>
 
 							<Form.Item
@@ -126,6 +131,8 @@ const Login = () => {
 							</Form.Item>
 						</Form>
 					</div>
+					<Button onClick={() => translate('en')}>EN</Button>
+					<Button onClick={() => translate('vi')}>VI</Button>
 					<div className="footer_login pt-2">
 						<p>
 							Website giới thiệu của
