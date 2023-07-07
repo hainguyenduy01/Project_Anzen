@@ -99,8 +99,8 @@ const Drivers = () => {
 		},
 		{
 			title: "Chi tiết tài xế",
-			dataIndex: "decription",
-			key: "decription",
+			dataIndex: "description",
+			key: "description",
 		},
 		{
 			title: "Hoạt động",
@@ -114,17 +114,11 @@ const Drivers = () => {
 		},
 	];
 	const handleTableChange = (page) => {
-		const params = {
+		const values = {
 			pageIndex: page.current,
 			pageSize: page.pageSize,
 		};
-
-		const values = {
-			pageIndex: params.pageIndex,
-			pageSize: params.pageSize,
-		};
-
-		dispatch(getAllDriverAsync(values));
+		setPages(values);
 	};
 
 	return (
