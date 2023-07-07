@@ -7,6 +7,7 @@ import Register from '../Register';
 import Customers from '../Customers';
 import Accountant from '../Accountant';
 import ExportExcel from '../ExportExcel';
+import Reports from '../Reports';
 const Home = () => {
 	return (
 		<Routes>
@@ -15,6 +16,7 @@ const Home = () => {
 			<Route path="/policy" element={<Policy />} />
 			<Route path="/customers" element={<Customers />} />
 			<Route path="/accountant" element={<Accountant />} />
+			<Route path="/reports" element={<Reports />} />
 			<Route path="/export-report" element={<ExportExcel />} />
 			<Route path="/drivers" element={<Drivers />} />
 			<Route path="/register" element={<Register />} />
