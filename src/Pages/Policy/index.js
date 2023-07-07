@@ -1,4 +1,4 @@
-import { Button, Form, Space, Table, Modal, Input, Row, Col, Checkbox } from "antd";
+import { Button, Form, Space, Table, Modal, Input, Row, Col, Checkbox, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FundOutlined } from '@ant-design/icons';
@@ -6,7 +6,7 @@ import { DateRangePicker } from 'rsuite';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
-import { createPolicyAsync, deletePolicyAsync, exportGridAsync, getAllPolicyAsync, selectPolicy, updatePolicyAsync } from "../../Slice/policySlice";
+import { createPolicyAsync, deletePolicyAsync, exportGridAsync, getAllPolicyAsync, selectPolicy, updatePolicyAsync,  } from "../../Slice/policySlice";
 import {
 	FORMATS_DATE,
 } from '../../Utils/constants';
@@ -22,6 +22,7 @@ const Policy = () => {
 	const policy = useSelector(selectPolicy)
 	const dispatch = useDispatch();
 	const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+	const [isModalOpenCode, setIsModalOpenCode] = useState(false);
 
 	const handleCancelExcel = () => {
 		setIsModalOpenExcel(false);
@@ -44,6 +45,7 @@ const Policy = () => {
 			theme: 'light',
 		});
 	};
+	
 	useEffect(() => {
 		dispatch(getAllPolicyAsync(pages));
 		setIsColumnsAfter(columns)
@@ -130,26 +132,39 @@ const Policy = () => {
 
 		dispatch(getAllPolicyAsync(values));
 	};
-
-	// const onFinishSearch = async (values) => {
-	// 	await dispatch(
-	// 		getAllPolicyAsync({
-	// 			...values,
-	// 			PageIndex: 1,
-	// 			PageSize: 10,
-	// 		}),
-	// 	);
+	const showCode = (code, record) => {
+		return code === false ? (
+		  <Tag color="#E61134" />
+		) : (
+		  <Tag
+			onClick={() => getDetailCode(record.id)}
+			className="tag_code"
+			color="#E61134"
+		  >
+			{code}
+		  </Tag>
+		);
+	  };
+	  const handleCancelCode = () => {
+		setIsModalOpenCode(false);
+	  };
+	  const getDetailCode = async (id) => {
+		// await dispatch(getDetailAccounting(id));
+		setIsModalOpenCode(true);
+	  };
 	const columns = [
 		{
 			title: "STT",
 			dataIndex: "id",
-			render:(_,record,index)=>	(pages.PageIndex - 1) * pages.PageSize + index + 1,
+			render: (_, record, index) =>
+				(pages.PageIndex - 1) * pages.PageSize + index + 1,
 			
 		},
 		{
 			title: "Số mã",
 			dataIndex: "code",
-			key: "code"
+			key: "code",
+			render: (code, record) => showCode(code, record),
 		},
 		{
 			title: "Ngày tạo",
