@@ -175,12 +175,12 @@ const Customers = () => {
     // console.log(values?.dateSearch);
     const params = {
       ...values,
-      codeDateFrom:
+      createdDateFrom:
         values?.dateSearch &&
         dayjs(values?.dateSearch?.[0]?.startOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
         ),
-      codeDateTo:
+        createdDateTo:
         values?.dateSearch &&
         dayjs(values?.dateSearch?.[1]?.endOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
