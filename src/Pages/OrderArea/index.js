@@ -108,6 +108,7 @@ const OrderArea = () => {
 	};
 	const clearForm = () => {
 		formSearch.resetFields();
+		dispatch(getAllDeliveryOrder(pages));
 	};
 	const handleCancel = () => {
 		setIsModalOpen(false);
@@ -337,7 +338,7 @@ const OrderArea = () => {
 		await dispatch(getDetailAccounting(id));
 		setIsModalOpenCode(true);
 	};
-	
+
 	const showCode = (code, record) => {
 		return code === false ? (
 			<Tag color="#E61134" />
