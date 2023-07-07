@@ -57,7 +57,16 @@ import {
 } from '../../Utils/constants';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-
+const abc = {
+	position: 'top-right',
+	autoClose: 3000,
+	hideProgressBar: false,
+	closeOnClick: true,
+	pauseOnHover: true,
+	draggable: false,
+	progress: undefined,
+	theme: 'light',
+};
 const OrderArea = () => {
 	const { RangePicker } = DatePicker;
 	const dispatch = useDispatch();
@@ -92,27 +101,9 @@ const OrderArea = () => {
 
 		await dispatch(getInfoImageAsync({ id: data.id, type: 'Product' }));
 		if (images.length === 0) {
-			toast.error('Upload ảnh thất bại!', {
-				position: 'top-right',
-				autoClose: 3000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: false,
-				progress: undefined,
-				theme: 'light',
-			});
+			toast.error('Upload ảnh thất bại!', abc);
 		} else {
-			toast.success('Upload ảnh thành công!', {
-				position: 'top-right',
-				autoClose: 3000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: false,
-				progress: undefined,
-				theme: 'light',
-			});
+			toast.success('Upload ảnh thành công!', abc);
 		}
 	};
 	const clearForm = () => {
@@ -143,12 +134,12 @@ const OrderArea = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [customerDetail]);
 	const onChangePhone = (value, option) => {
-		const selectedID = option.id;
-		dispatch(getDetailCustomerAsync(selectedID));
+		// const selectedID = option.id;
+		dispatch(getDetailCustomerAsync(option.id));
 	};
 	const onChangePhone1 = (value, option) => {
-		const selectedID = option.id;
-		dispatch(getDetailShipperAsync(selectedID));
+		// const selectedID = option.id;
+		dispatch(getDetailShipperAsync(option.id));
 	};
 	const onFinishSearch = async (values) => {
 		if (values.dateSearch) {
@@ -178,6 +169,12 @@ const OrderArea = () => {
 		PageIndex: 1,
 		PageSize: 10,
 	});
+
+	useEffect(() => {
+		dispatch(getAllDeliveryOrder(pages));
+		setFilterColumn(columns);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [pages]);
 	const [isModalOpenCode, setIsModalOpenCode] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isModalOpenExcel, setIsModalOpenExcel] = useState(false);
@@ -197,7 +194,9 @@ const OrderArea = () => {
 		{
 			title: 'STT',
 			dataIndex: 'id',
-			render: (_, record, index) => <p>{index + 1}</p>,
+			key: 'id',
+			render: (_, record, index) =>
+				(pages.PageIndex - 1) * pages.PageSize + index + 1,
 		},
 		{
 			title: 'Ngày tạo',
@@ -311,12 +310,9 @@ const OrderArea = () => {
 	useEffect(() => {
 		dispatch(getSaleStaffAsync());
 		dispatch(filterPhoneCusomerAsync(pages));
+		document.title = 'Khu vực đơn hàng - ANZEN';
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	useEffect(() => {
-		dispatch(getAllDeliveryOrder(pages));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [pages]);
 
 	useEffect(() => {
 		order?.detailDeliveryOrder.result?.deliveryOrderDetails &&
@@ -332,7 +328,7 @@ const OrderArea = () => {
 		setValueRadio(e.target.value);
 		e.target.value === 'all'
 			? setFilterColumn(columns)
-			: setFilterColumn(columns.filter((item) => !item.hidden));
+			: setFilterColumn(comlumnsfilter);
 	};
 	const handleCancelCode = () => {
 		setIsModalOpenCode(false);
@@ -460,18 +456,34 @@ const OrderArea = () => {
 				theme: 'light',
 			});
 		} else {
-			const data = {
-				...values,
-				code: values.isGenCode,
-				orderDate: values.orderDate.format(DATE_FORMAT),
-				deliveryOrderDetails: dataTableProduct,
-			};
-			setIsModalOpen(false);
-			await dispatch(postOrderAsync(data));
-			dispatch(getAllDeliveryOrder(pages));
-			if (values.isGenCode === true) {
-				dispatch(downloadLadingBillAsync(values.id));
+			if (values.id) {
+				const data = {
+					...values,
+
+					code: values.isGenCode,
+					orderDate: values.orderDate.format(DATE_FORMAT),
+					deliveryOrderDetails: dataTableProduct,
+				};
+				await dispatch(postOrderAsync(data));
+				if (values.isGenCode === true) {
+					dispatch(downloadLadingBillAsync(values.id));
+				}
+			} else {
+				const data = {
+					...values,
+					id: uuidv4(),
+					code: values.isGenCode,
+					orderDate: values.orderDate.format(DATE_FORMAT),
+					deliveryOrderDetails: dataTableProduct,
+				};
+				await dispatch(postOrderAsync(data));
+				if (values.isGenCode === true) {
+					dispatch(downloadLadingBillAsync(data.id));
+				}
 			}
+			setIsModalOpen(false);
+			dispatch(getAllDeliveryOrder(pages));
+
 			// dispatch(getAllDeliveryOrder(pages));
 			if (values.id) {
 				toast.success('Sửa thành công!', {
