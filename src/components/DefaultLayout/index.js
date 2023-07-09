@@ -20,14 +20,10 @@ import Home from '../../Pages/Home';
 import { toast } from 'react-toastify';
 import { getUserProfile } from '../../Services/LoginServices';
 const { Header, Sider, Content } = Layout;
-const DefaultLayout = (props) => {
+const DefaultLayout = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		const user = localStorage.getItem('user');
-		if (!user) {
-			navigate('/user/login');
-		}
 		getUserProfile1();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -51,10 +47,7 @@ const DefaultLayout = (props) => {
 		}
 	}, [location, current]);
 	const logout = () => {
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('refresh_token');
-		localStorage.removeItem('expires_in');
-		localStorage.removeItem('user');
+		localStorage.clear();
 		toast.success('Đăng xuất thành công!', {
 			position: 'top-right',
 			autoClose: 3000,
@@ -92,6 +85,11 @@ const DefaultLayout = (props) => {
 			key: '/drivers',
 			icon: <MedicineBoxOutlined />,
 			label: 'Tài xế',
+		},
+		{
+			key: '/reports',
+			icon: <SwapOutlined />,
+			label: 'Báo cáo',
 		},
 		{
 			key: '/export-report',

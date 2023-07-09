@@ -16,18 +16,16 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getBillOfLadingsAsync,
-  getDetailBillOfLadings,
   selectBillOfLading,
 } from "../../Slice/AccountantSlice";
 import { FORMATS_DATE } from "../../Utils/constants";
 import dayjs from "dayjs";
-import { getDetailAccounting } from "../../Slice/orderSlice";
 
 const Accountant = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [isModalOpenCode, setIsModalOpenCode] = useState(false);
-  const [isModalOpenCode2, setIsModalOpenCode2] = useState(false);
   const [pages, setPages] = useState({ PageIndex: 1, PageSize: 10 });
+  const [form] = Form.useForm();
   const [formSearch] = Form.useForm();
   const { RangePicker } = DatePicker;
   useEffect(() => {
@@ -40,16 +38,14 @@ const Accountant = () => {
   }, [pages]);
   const listAccountant = useSelector(selectBillOfLading);
   console.log(listAccountant);
-  const detailBillOfLadings = listAccountant?.listAccount?.result;
-  console.log(detailBillOfLadings);
+  const detailAccounting = listAccountant?.listAccount?.result;
 
   const columns = [
     {
       title: "STT",
       dataIndex: "id",
       key: "id",
-      render: (_, record, index) =>
-        (pages.PageIndex - 1) * pages.PageSize + index + 1,
+      render: (_, record, index) => <p>{index + 1}</p>,
     },
     {
       title: "Số mã",
@@ -95,24 +91,23 @@ const Accountant = () => {
     {
       title: "STT",
       dataIndex: "id",
-      key: "index",
+      key: "id",
       render: (_, record, index) => <p>{index + 1}</p>,
     },
     {
       title: "MVĐ",
-      dataIndex: "code",
-      key: "code",
-      render: (code, record) => showCode2(code, record),
+      dataIndex: "name",
+      key: "name",
     },
     {
       title: "Tên khách hàng",
-      dataIndex: "consignee",
-      key: "consignee",
+      dataIndex: "name",
+      key: "name",
     },
     {
       title: "Tên hàng",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "unit",
+      key: "unit",
     },
     {
       title: "Số lượng",
@@ -121,67 +116,42 @@ const Accountant = () => {
     },
     {
       title: "Nơi giao",
-      dataIndex: "toAddress",
-      key: "toAddress",
+      dataIndex: "mass",
+      key: "mass",
     },
     {
       title: "Số điện thoại",
-      dataIndex: "consigneePhone",
-      key: "consigneePhone",
+      dataIndex: "phone",
+      key: "phone",
     },
     {
       title: "Hình thức thu tiền",
-      dataIndex: "paymentType",
-      key: "paymentType",
+      dataIndex: "note",
+      key: "note",
     },
     {
       title: "Số tiền lái xe thu",
-      dataIndex: "cod",
-      key: "cod",
+      dataIndex: "note",
+      key: "note",
     },
     {
       title: "Số tiền",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
+      dataIndex: "note",
+      key: "note",
     },
   ];
-  const columnsQuantityAccounting = [
-		{
-			title: 'Tên Hàng',
-			dataIndex: 'name',
-			key: 'name',
-		},
-		{
-			title: 'ĐVT',
-			dataIndex: 'unit',
-			key: 'unit',
-		},
-		{
-			title: 'Số lượng',
-			dataIndex: 'quantity',
-			key: 'quantity',
-		},
-		{
-			title: 'Khối lượng',
-			dataIndex: 'mass',
-			key: 'mass',
-		},
-		{
-			title: 'Trọng lượng',
-			dataIndex: 'weight',
-			key: 'weight',
-		},
-		{
-			title: 'Ghi chú',
-			dataIndex: 'note',
-			key: 'note',
-		},
-	];
   const showIsDone = (isDone) => {
     return isDone === true ? "" : <Button>Hoàn thành</Button>;
   };
   const handleCheckbox = (e) => {
     setShowAdvancedSearch(e.target.checked);
+  };
+  const handleTableChange = (page) => {
+    const values = {
+      pageIndex: page.current,
+      pageSize: page.pageSize,
+    };
+    setPages(values);
   };
   const clearForm = (values) => {
     formSearch.resetFields();
@@ -200,58 +170,32 @@ const Accountant = () => {
       </Tag>
     );
   };
-  const showCode2 = (code, record) => {
-    return code === false ? (
-      <Tag color="#E61134" />
-    ) : (
-      <Tag
-        onClick={() => getDetailCode2(record.id)}
-        className="tag_code"
-        color="#E61134"
-      >
-        {code}
-      </Tag>
-    );
-  };
   const handleCancelCode = () => {
     setIsModalOpenCode(false);
-    setIsModalOpenCode2(false);
   };
   const getDetailCode = async (id) => {
-    await dispatch(getDetailBillOfLadings(id));
+    // await dispatch(getDetailAccounting(id));
     setIsModalOpenCode(true);
   };
-  const getDetailCode2 = async (id) => {
-    await dispatch(getDetailAccounting(id));
-    setIsModalOpenCode2(true);
-  };
-  const onFinishSearch = async (values) => {
-    if (
-      values?.dateSearch ||
-      values?.totalCod >= values?.totalCodFrom ||
-      values?.totalCod <= values?.totalCodTo
-    ) {
-      const ladingDateFrom = values?.dateSearch?.[0]
-        .format(FORMATS_DATE.YYYY_MM_DD)
-        .toString();
-      const ladingDateTo = values?.dateSearch?.[1]
-        .format(FORMATS_DATE.YYYY_MM_DD)
-        .toString();
-      const { dateSearch, ...otherValues } = values;
-      await dispatch(
-        getBillOfLadingsAsync({
-          ...otherValues,
-          ladingDateTo: ladingDateTo,
-          ladingDateFrom: ladingDateFrom,
-          PageIndex: 1,
-          PageSize: 10,
-        })
-      );
-    } else {
-      await dispatch(
-        getBillOfLadingsAsync({ ...values, PageIndex: 1, PageSize: 10 })
-      );
-    }
+  const onFinishSearch = (values) => {
+    console.log(values?.dateSearch);
+    const params = {
+      ...values,
+      LadingDateFrom:
+        values?.dateSearch &&
+        dayjs(values?.dateSearch?.[0]?.startOf("day")).format(
+          FORMATS_DATE.YYYY_MM_DD
+        ),
+        LadingDateTo:
+        values?.dateSearch &&
+        dayjs(values?.dateSearch?.[1]?.endOf("day")).format(
+          FORMATS_DATE.YYYY_MM_DD
+        ),
+      pageIndex: 1,
+      pageSize: 10,
+      dateSearch: undefined,
+    };
+    setPages(params);
   };
   return (
     <>
@@ -323,7 +267,7 @@ const Accountant = () => {
             <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
               <Form.Item
                 label="Tổng số tiền từ"
-                name="totalCodFrom"
+                name="moneyfrom"
                 className="form__item"
                 values="number"
               >
@@ -337,7 +281,7 @@ const Accountant = () => {
             <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
               <Form.Item
                 label="Tổng số tiền đến"
-                name="totalCodTo"
+                name="moneyto"
                 className="form__item"
                 values="number"
               >
@@ -370,178 +314,37 @@ const Accountant = () => {
       </Form>
       <Modal
         getContainer={false}
-        title="BẢNG KÊ GIAO NHẬN VẬN CHUYỂN ---- "
+        title="BẢNG KÊ GIAO NHẬN VẬN CHUYỂN"
         open={isModalOpenCode}
         onCancel={handleCancelCode}
         destroyOnClose={false}
         width={"80%"}
+        // loading={detailAccounting?.isLoading}
         footer={[
           <Button key="cancel" onClick={handleCancelCode}>
             Đóng
           </Button>,
-          <Button
-            className="btn-yellow"
-            key="download"
-            // onClick={() => download(detailBillOfLadings.id)}
-          >
+          <Button className="btn-yellow" key="download">
             Tải xuống
           </Button>,
         ]}
       >
         <Row>
-          <Col span={8}>
-            <Space>
-              <strong>Tên công ty:</strong>
-              <span>{detailBillOfLadings?.a}</span>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space>
-              <strong>Số điện thoại:</strong>
-              <span>{detailBillOfLadings?.b}</span>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space>
-              <strong>Mã số thuế:</strong>
-              <span>{detailBillOfLadings?.c}</span>
-            </Space>
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={8}>
-            <Space>
-              <strong>Số hợp đồng:</strong>
-              <span>{detailBillOfLadings?.d}</span>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space>
-              <strong>Người lái xe:</strong>
-              <span>{detailBillOfLadings?.driver}</span>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space>
-              <strong>Biển số xe:</strong>
-              <span>{detailBillOfLadings?.licensePlate}</span>
-            </Space>
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={8}>
-            <Space>
-              <strong>CMND:</strong>
-              <span>{detailBillOfLadings?.driverIdentity}</span>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space>
-              <strong>Địa chỉ:</strong>
-              <span>{detailBillOfLadings?.driverAddress}</span>
-            </Space>
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={8}>
-            <Space>
-              <strong>GPLX:</strong>
-              <span>{detailBillOfLadings?.drivingLicense}</span>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space>
-              <strong>Điện thoại lái xe:</strong>
-              <span>{detailBillOfLadings?.driverPhone}</span>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space>
-              <strong>Tổng cước cho xe:</strong>
-              <span>{detailBillOfLadings?.totalCOD}</span>
-            </Space>
-          </Col>
-        </Row>
-        <br />
-        <Table
-          rowKey={(record) => record.id}
-          columns={columnsAccounting}
-          dataSource={detailBillOfLadings?.deliveryOrderBillOfLadings}
-          pagination={{
-            size: "small",
-            total: detailBillOfLadings?.deliveryOrderBillOfLadings?.total,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-            onChange: (PageIndex, PageSize) => {
-              setPages({
-                ...pages,
-                PageIndex: PageIndex,
-                PageSize: PageSize,
-              });
-            },
-          }}
-        ></Table>
-        <br />
-        <div>
-          <Row>
-            <Col span={18}></Col>
-            <Col span={6}>
-              <Space>
-                <strong>Tổng cộng:</strong>
-                <span>{detailBillOfLadings?.totalCOD}</span>
-              </Space>
-            </Col>
-          </Row>
-          <hr />
-          <Row>
-            <Col span={18}></Col>
-            <Col span={6}>
-              <Space>
-                <strong>Đã tạm ứng:</strong>
-                <span>{detailBillOfLadings?.advanceAmount}</span>
-              </Space>
-            </Col>
-          </Row>
-        </div>
-
-        <br />
-      </Modal>
-      <Modal
-        getContainer={false}
-        title="BIÊN NHẬN VẬN CHUYỂN"
-        open={isModalOpenCode2}
-        onCancel={handleCancelCode}
-        destroyOnClose={true}
-        width={"80%"}
-        footer={[
-          <Button key="cancel" onClick={handleCancelCode}>
-            Đóng
-          </Button>,
-          <Button className="btn-yellow" key="send">
-            Gửi
-          </Button>,
-        ]}
-      >
-        <hr />
-        <Row>
           <Col span={12}>
             <Space>
               <strong>MVĐ:</strong>
-              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.code}</span>
+              <span>{detailAccounting?.code}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <Space>
                 <strong>Nhân viên kinh doanh:</strong>
-                <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.saleStaff}</span>
+                <span>{detailAccounting?.saleStaff}</span>
               </Space>
               <Space>
                 <strong>SĐT:</strong>
-                <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.shipperPhone}</span>
+                <span>{detailAccounting?.shipperPhone}</span>
               </Space>
             </Space>
           </Col>
@@ -551,15 +354,13 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Nguời gửi:</strong>
-              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.shipper}</span>
+              <span>{detailAccounting?.shipper}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <strong>Người nhận:</strong>
-              <span>
-                {detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.consignee}
-              </span>
+              <span>{detailAccounting?.consignee}</span>
             </Space>
           </Col>
         </Row>
@@ -567,13 +368,13 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Địa chỉ gửi:</strong>
-              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.fromAddress}</span>
+              <span>{detailAccounting?.fromAddress}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <strong>Địa chỉ nhận:</strong>
-              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.toAddress}</span>
+              <span>{detailAccounting?.toAddress}</span>
             </Space>
           </Col>
         </Row>
@@ -581,103 +382,74 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Số điện thoại gửi:</strong>
-              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.shipperPhone}</span>
+              <span>{detailAccounting?.shipperPhone}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <strong>Số điện thoại nhận:</strong>
-              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.consigneePhone}</span>
+              <span>{detailAccounting?.consigneePhone}</span>
             </Space>
+          </Col>
+        </Row>
+        <br />
+        <Row>
+          <Col span={24}>
+            <span>Hai bên thống nhất lượng vận chuyển như sau</span>
           </Col>
         </Row>
         <br />
         <Table
           rowKey={(record) => record.id}
-          columns={columnsQuantityAccounting}
-          dataSource={detailBillOfLadings?.deliveryOrderBillOfLadings}
+          columns={columnsAccounting}
+          dataSource={detailAccounting?.deliveryOrderDetails}
           pagination={false}
         ></Table>
         <br />
         <Row>
-          <Col span={24}>
-            <strong>Giá bán</strong>
+          <Col span={12}>
+            <Space>
+              <strong>Tổng cộng:</strong>
+              <span>{detailAccounting?.totalAmount}</span>
+            </Space>
+          </Col>
+          <Col span={12}>
+            <Space>
+              <strong>Đã tạm ứng:</strong>
+              <span>{detailAccounting?.paymentType}</span>
+            </Space>
           </Col>
         </Row>
-        <br />
         
         <br />
-        <Row>
-          <Col span={24}>
-            <strong>Giá mua</strong>
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={24}>
-            <strong>Trung chuyển</strong>
-            <Table
-              rowKey={(record) => record.id}
-              // columns={columnsTransborder}
-              // dataSource={
-              // 	detailAccounting?.ladingInfos &&
-              // 	detailAccounting?.transborderFees
-              // }
-            />
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={24}>
-            <strong>Phí nhận hàng</strong>
-            <Table
-              rowKey={(record) => record.id}
-              // columns={columnsReceiving}
-              // dataSource={
-              // 	detailAccounting?.ladingInfos &&
-              // 	detailAccounting?.receivingFees
-              // }
-            />
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={24}>
-            <strong>Phí bo giao hàng</strong>
-            <Table
-              rowKey={(record) => record.id}
-              // columns={columnsFreight}
-              // dataSource={
-              // 	detailAccounting?.ladingInfos &&
-              // 	detailAccounting?.freightFees
-              // }
-            />
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={24}>
-            <strong>Phí khác</strong>
-            <Table
-              rowKey={(record) => record.id}
-              // columns={columnsOther}
-              // dataSource={
-              // detailAccounting?.ladingInfos && detailAccounting?.otherFees
-              // }
-            />
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={24}>
-            <strong>Thông tin tài xế</strong>
-            <Table
-              rowKey={(record) => record.id}
-              // columns={columnsDrivers}
-              dataSource={null}
-            />
-          </Col>
-        </Row>
+        {/* <table style={{ border: '1px solid black', width: '100%' }}>
+							<tbody>
+								<tr
+									style={{
+										borderBottom: '1px solid black',
+										textAlign: 'center',
+									}}
+								>
+									<th>Giá bán</th>
+									<th>Thành tiền</th>
+								</tr>
+								<tr>
+									<td style={{ paddingLeft: '10px' }}>Bán ra</td>
+									<td>{detailAccounting?.totalAmount}</td>
+								</tr>
+								<tr>
+									<td style={{ paddingLeft: '10px' }}>Phát sinh khác</td>
+									<td>{detailAccounting?.additionalAmount}</td>
+								</tr>
+								<tr>
+									<td style={{ paddingLeft: '10px' }}>Tổng giá bán</td>
+									<td>
+										{detailAccounting?.totalAmount +
+											detailAccounting?.additionalAmount}
+									</td>
+								</tr>
+							</tbody>
+						</table> */}
       </Modal>
       <Table
         dataSource={listAccountant?.listA?.result?.items}
@@ -688,14 +460,8 @@ const Accountant = () => {
           total: listAccountant?.listA?.result?.total,
           showTotal: (total, range) =>
             `${range[0]}-${range[1]} of ${total} items`,
-          onChange: (PageIndex, PageSize) => {
-            setPages({
-              ...pages,
-              PageIndex: PageIndex,
-              PageSize: PageSize,
-            });
-          },
         }}
+        onChange={(page) => handleTableChange(page)}
       />
     </>
   );

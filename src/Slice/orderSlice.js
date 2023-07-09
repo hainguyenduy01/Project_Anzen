@@ -16,6 +16,7 @@ import {
 	getDetailShipperService,
 	getDownloadService,
 	getInfoImageService,
+	getReportService,
 	getSaleStaffService,
 	postOrderService,
 	uploadImageService,
@@ -36,6 +37,7 @@ const initialState = {
 	listInfoImage: {},
 	linkDownloadImage: [],
 	uploadImage: [],
+	listReport: [],
 };
 export const getAllDeliveryOrder = createAsyncThunk(
 	'getAllDeliveryOrder',
@@ -55,7 +57,6 @@ export const downloadAccountingAsync = createAsyncThunk(
 	'downloadAccounting',
 	async (id) => {
 		const response = await downloadAccountingService(id);
-
 		return response.data;
 	},
 );
@@ -161,6 +162,10 @@ export const uploadImageAsync = createAsyncThunk(
 		return response.data;
 	},
 );
+export const getReportAsync = createAsyncThunk('getReport', async (params) => {
+	const response = await getReportService(params);
+	return response.data;
+});
 export const orderSlice = createSlice({
 	name: 'order',
 	initialState,
@@ -193,7 +198,7 @@ export const orderSlice = createSlice({
 					const href = URL.createObjectURL(action.payload);
 					const link = document.createElement('a');
 					link.href = href;
-					link.setAttribute('download', `ketoan.pdf`);
+					link.setAttribute('download', `Biên nhận ${dayjs().format('DD/MM/YYYY')}.pdf`);
 					document.body.appendChild(link);
 					link.click();
 					document.body.removeChild(link);
@@ -383,6 +388,15 @@ export const orderSlice = createSlice({
 				}
 				// state.linkDownloadImage = action.payload;
 				state.isloading = false;
+			})
+			.addCase(getReportAsync.pending, (state) => {
+				state.isloading = true;
+			})
+			.addCase(getReportAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.listReport = action.payload;
+					state.isloading = false;
+				}
 			});
 	},
 });

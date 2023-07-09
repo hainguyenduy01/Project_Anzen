@@ -101,3 +101,93 @@ export const DELIVERY_TYPE = [
 	{ value: 'TK', label: 'Tận Kho' },
 	{ value: 'QL', label: 'Quốc lộ' },
 ];
+export const TYPE_REPORT = [
+	{
+		value: 'D',
+		label: 'Ngày',
+	},
+	{
+		value: 'M',
+		label: 'Tháng',
+	},
+	{
+		value: 'Q',
+		label: 'Quý',
+	},
+	{
+		value: 'Y',
+		label: 'Năm',
+	},
+];
+export const MONTH_REPORT = [
+	{
+		value: '01',
+		label: 'Tháng 1',
+	},
+	{
+		value: '02',
+		label: 'Tháng 2',
+	},
+	{
+		value: '03',
+		label: 'Tháng 3',
+	},
+	{
+		value: '04',
+		label: 'Tháng 4',
+	},
+	{
+		value: '05',
+		label: 'Tháng 5',
+	},
+	{
+		value: '06',
+		label: 'Tháng 6',
+	},
+	{
+		value: '07',
+		label: 'Tháng 7',
+	},
+	{
+		value: '08',
+		label: 'Tháng 8',
+	},
+	{
+		value: '09',
+		label: 'Tháng 9',
+	},
+	{
+		value: '10',
+		label: 'Tháng 10',
+	},
+	{
+		value: '11',
+		label: 'Tháng 11',
+	},
+	{
+		value: '12',
+		label: 'Tháng 12',
+	},
+];
+export const YEAR_REPORT = [
+	{
+		value: '2022',
+		label: '2022',
+	},
+	{
+		value: '2023',
+		label: '2023',
+	},
+	{
+		value: '2024',
+		label: '2024',
+	},
+	{
+		value: '2025',
+		label: '2025',
+	},
+	{
+		value: '2026',
+		label: '2026',
+	},
+];

@@ -65,13 +65,14 @@ const ExportExcel = () => {
 		});
 		dispatch(getDownloadAsync(pages));
 	};
-	const downloadExcel = (id) => {
-		dispatch(downloadExcelAsync(id));
+	const downloadExcel = async (id) => {
+		await dispatch(downloadExcelAsync(id));
+		window.location.reload();
 	};
 	const columns = [
 		{
 			title: 'STT',
-			render: (text, record, index) => index + 1,
+			render: (text, record, index) => (pages.PageIndex - 1) * 10 + index + 1,
 		},
 		{
 			title: 'Tên',

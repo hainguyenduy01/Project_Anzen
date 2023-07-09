@@ -1,31 +1,74 @@
-import request from '../Utils/request'
+import request from '../Utils/request';
 import queryString from 'query-string';
 export const getAllPolicyService = (params) => {
-    return request(
-        `https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings?${queryString.stringify(
-            params,
-        )}`,
-        {
-            method: 'GET',
-        },
-    );
-}
-export const deletePolicyService = (id) => {
-    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/${id}`, {
-        method: 'DELETE'
-    })
-}
-
-export const createPolicyService = (data) => {
-    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings`, {
-        method: 'POST',
-        data
-    })
-}
-
-export const updatePolicyService = (id, data) => {
-    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/${id}`, {
-        method: 'PUT',
-        data
-    })
-}
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const downloadCodeBillService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/export?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+			responseType: 'blob',
+		},
+	);
+};
+export const exportGridEService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/export-grid?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const getDetailCodeBillService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/${id}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const getInfoImageService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/download-multiple-files-as-links?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const downloadImageService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/download-multiple-files-as-zip?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+			responseType: 'blob',
+		},
+	);
+};
+export const uploadImageService = (data) => {
+	return request(
+		'https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/upload',
+		{
+			method: 'POST',
+			data: data,
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
+		},
+	);
+};

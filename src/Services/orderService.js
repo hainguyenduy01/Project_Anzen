@@ -159,7 +159,6 @@ export const downloadImageService = (params) => {
 	);
 };
 export const uploadImageService = (data) => {
-	console.log(data);
 	return request(
 		'https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/upload',
 		{
@@ -168,6 +167,16 @@ export const uploadImageService = (data) => {
 			headers: {
 				'Content-Type': 'multipart/form-data',
 			},
+		},
+	);
+};
+export const getReportService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/RevenueBaselines?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
 		},
 	);
 };
