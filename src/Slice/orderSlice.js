@@ -57,7 +57,6 @@ export const downloadAccountingAsync = createAsyncThunk(
 	'downloadAccounting',
 	async (id) => {
 		const response = await downloadAccountingService(id);
-
 		return response.data;
 	},
 );
@@ -199,7 +198,7 @@ export const orderSlice = createSlice({
 					const href = URL.createObjectURL(action.payload);
 					const link = document.createElement('a');
 					link.href = href;
-					link.setAttribute('download', `ketoan.pdf`);
+					link.setAttribute('download', `Biên nhận ${dayjs().format('DD/MM/YYYY')}.pdf`);
 					document.body.appendChild(link);
 					link.click();
 					document.body.removeChild(link);
