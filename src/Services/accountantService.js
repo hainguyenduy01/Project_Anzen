@@ -9,7 +9,7 @@ export const getBillOfLadingsService = (data) => {
 		},
 	);
 };
-export const getAccountingService = (id) => {
+export const getDetailBillOfLadingsService = (id) => {
 	return request(
 		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/${id}`,
 		{

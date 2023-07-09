@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAccountingService, getBillOfLadingsService } from "../Services/accountantService";
+import {  getBillOfLadingsService, getDetailBillOfLadingsService } from "../Services/accountantService";
 const initialState = {
     isLoading: false,
     listA: {},
@@ -13,13 +13,14 @@ const initialState = {
       return response.data;
     },
   );
-  export const getDetailAccounting = createAsyncThunk(
-    'getDetailAccounting',
+  export const getDetailBillOfLadings = createAsyncThunk(
+    'getDetailBillOfLadings',
     async (id) => {
-      const response = await getAccountingService(id);
+      const response = await getDetailBillOfLadingsService(id);
       return response.data;
     },
   );
+  
   export const AccountantSlice = createSlice({
     name: "BillOfLadings",
     initialState,
@@ -35,13 +36,13 @@ const initialState = {
             state.listA = action.payload;
           }
         })
-        .addCase(getDetailAccounting.pending, (state) => {
-          state.isloading = true;
+        .addCase(getDetailBillOfLadings.pending, (state) => {
+          state.isLoading = true;
         })
-        .addCase(getDetailAccounting.fulfilled, (state, action) => {
+        .addCase(getDetailBillOfLadings.fulfilled, (state, action) => {
           if (action.payload) {
+            state.isLoading = false;
             state.listAccount = action.payload;
-            state.isloading = false;
           }
         })
       },
