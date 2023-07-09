@@ -45,7 +45,7 @@ const Accountant = () => {
       title: "STT",
       dataIndex: "id",
       key: "id",
-      render: (_, record, index) => <p>{index + 1}</p>,
+      render: (_, record, index) => (pages.PageIndex - 1) * 10 + index + 1,
     },
     {
       title: "Số mã",
@@ -91,8 +91,8 @@ const Accountant = () => {
     {
       title: "STT",
       dataIndex: "id",
-      key: "id",
-      render: (_, record, index) => <p>{index + 1}</p>,
+      key: "index",
+      render: (record, item, index) => (pages.PageIndex - 1) * 10 + index,
     },
     {
       title: "MVĐ",
@@ -146,13 +146,6 @@ const Accountant = () => {
   const handleCheckbox = (e) => {
     setShowAdvancedSearch(e.target.checked);
   };
-  const handleTableChange = (page) => {
-    const values = {
-      pageIndex: page.current,
-      pageSize: page.pageSize,
-    };
-    setPages(values);
-  };
   const clearForm = (values) => {
     formSearch.resetFields();
     setPages(values);
@@ -186,7 +179,7 @@ const Accountant = () => {
         dayjs(values?.dateSearch?.[0]?.startOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
         ),
-        LadingDateTo:
+      LadingDateTo:
         values?.dateSearch &&
         dayjs(values?.dateSearch?.[1]?.endOf("day")).format(
           FORMATS_DATE.YYYY_MM_DD
@@ -420,7 +413,7 @@ const Accountant = () => {
             </Space>
           </Col>
         </Row>
-        
+
         <br />
         {/* <table style={{ border: '1px solid black', width: '100%' }}>
 							<tbody>
@@ -460,8 +453,14 @@ const Accountant = () => {
           total: listAccountant?.listA?.result?.total,
           showTotal: (total, range) =>
             `${range[0]}-${range[1]} of ${total} items`,
+          onChange: (PageIndex, PageSize) => {
+            setPages({
+              ...pages,
+              PageIndex: PageIndex,
+              PageSize: PageSize,
+            });
+          },
         }}
-        onChange={(page) => handleTableChange(page)}
       />
     </>
   );
