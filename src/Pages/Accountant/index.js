@@ -21,7 +21,7 @@ import {
 } from "../../Slice/AccountantSlice";
 import { FORMATS_DATE } from "../../Utils/constants";
 import dayjs from "dayjs";
-import { getDetailAccounting} from "../../Slice/orderSlice";
+import { getDetailAccounting } from "../../Slice/orderSlice";
 
 const Accountant = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
@@ -145,6 +145,38 @@ const Accountant = () => {
       key: "totalAmount",
     },
   ];
+  const columnsQuantityAccounting = [
+		{
+			title: 'Tên Hàng',
+			dataIndex: 'name',
+			key: 'name',
+		},
+		{
+			title: 'ĐVT',
+			dataIndex: 'unit',
+			key: 'unit',
+		},
+		{
+			title: 'Số lượng',
+			dataIndex: 'quantity',
+			key: 'quantity',
+		},
+		{
+			title: 'Khối lượng',
+			dataIndex: 'mass',
+			key: 'mass',
+		},
+		{
+			title: 'Trọng lượng',
+			dataIndex: 'weight',
+			key: 'weight',
+		},
+		{
+			title: 'Ghi chú',
+			dataIndex: 'note',
+			key: 'note',
+		},
+	];
   const showIsDone = (isDone) => {
     return isDone === true ? "" : <Button>Hoàn thành</Button>;
   };
@@ -488,6 +520,9 @@ const Accountant = () => {
           <Button key="cancel" onClick={handleCancelCode}>
             Đóng
           </Button>,
+          <Button className="btn-yellow" key="send">
+            Gửi
+          </Button>,
         ]}
       >
         <hr />
@@ -495,18 +530,18 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>MVĐ:</strong>
-              <span>{detailBillOfLadings?.code}</span>
+              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.code}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <Space>
                 <strong>Nhân viên kinh doanh:</strong>
-                {/* <span>{detailAccounting?.saleStaff}</span> */}
+                <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.saleStaff}</span>
               </Space>
               <Space>
                 <strong>SĐT:</strong>
-                {/* <span>{detailAccounting?.shipperPhone}</span> */}
+                <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.shipperPhone}</span>
               </Space>
             </Space>
           </Col>
@@ -516,13 +551,15 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Nguời gửi:</strong>
-              {/* <span>{detailAccounting?.shipper}</span> */}
+              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.shipper}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <strong>Người nhận:</strong>
-              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings?.consignee}</span>
+              <span>
+                {detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.consignee}
+              </span>
             </Space>
           </Col>
         </Row>
@@ -530,13 +567,13 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Địa chỉ gửi:</strong>
-              {/* <span>{detailAccounting?.fromAddress}</span> */}
+              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.fromAddress}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <strong>Địa chỉ nhận:</strong>
-              {/* <span>{detailAccounting?.toAddress}</span> */}
+              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.toAddress}</span>
             </Space>
           </Col>
         </Row>
@@ -544,52 +581,23 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Số điện thoại gửi:</strong>
-              {/* <span>{detailAccounting?.shipperPhone}</span> */}
+              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.shipperPhone}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <strong>Số điện thoại nhận:</strong>
-              {/* <span>{detailAccounting?.consigneePhone}</span> */}
+              <span>{detailBillOfLadings?.deliveryOrderBillOfLadings[0]?.consigneePhone}</span>
             </Space>
           </Col>
         </Row>
         <br />
         <Table
           rowKey={(record) => record.id}
-          // columns={columnsQuantityAccounting}
-          // dataSource={detailAccounting?.deliveryOrderDetails}
+          columns={columnsQuantityAccounting}
+          dataSource={detailBillOfLadings?.deliveryOrderBillOfLadings}
           pagination={false}
         ></Table>
-        <br />
-        <Row>
-          <Col span={12}>
-            <Space>
-              <strong>Cước vận chuyển:</strong>
-              {/* <span>{detailAccounting?.totalAmount}</span> */}
-            </Space>
-          </Col>
-          <Col span={12}>
-            <Space>
-              <strong>Hình thức thanh toán:</strong>
-              {/* <span>{detailAccounting?.paymentType}</span> */}
-            </Space>
-          </Col>
-        </Row>
-        <Row>
-          <Col span={12}>
-            <Space>
-              <strong>Hình thức nhận hàng:</strong>
-              {/* <span>{detailAccounting?.receiveType}</span> */}
-            </Space>
-          </Col>
-          <Col span={12}>
-            <Space>
-              <strong>Hình thức giao hàng:</strong>
-              {/* <span>{detailAccounting?.sendType}</span> */}
-            </Space>
-          </Col>
-        </Row>
         <br />
         <Row>
           <Col span={24}>
@@ -597,34 +605,7 @@ const Accountant = () => {
           </Col>
         </Row>
         <br />
-        <table style={{ border: "1px solid black", width: "100%" }}>
-          <tbody>
-            <tr
-              style={{
-                borderBottom: "1px solid black",
-                textAlign: "center",
-              }}
-            >
-              <th>Giá bán</th>
-              <th>Thành tiền</th>
-            </tr>
-            <tr>
-              <td style={{ paddingLeft: "10px" }}>Bán ra</td>
-              {/* <td>{detailAccounting?.totalAmount}</td> */}
-            </tr>
-            <tr>
-              <td style={{ paddingLeft: "10px" }}>Phát sinh khác</td>
-              {/* <td>{detailAccounting?.additionalAmount}</td> */}
-            </tr>
-            <tr>
-              <td style={{ paddingLeft: "10px" }}>Tổng giá bán</td>
-              {/* <td>
-										{detailAccounting?.totalAmount +
-											detailAccounting?.additionalAmount}
-									</td> */}
-            </tr>
-          </tbody>
-        </table>
+        
         <br />
         <Row>
           <Col span={24}>
