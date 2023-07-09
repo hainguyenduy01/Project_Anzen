@@ -1091,6 +1091,7 @@ const OrderArea = () => {
 								dataSource={order.listDeliveryOrder?.items}
 								pagination={{
 									...pages,
+									size: 'small',
 									total: order.listDeliveryOrder.total,
 									showSizeChanger: true,
 									pageSizeOptions: ['10', '20', '30'],

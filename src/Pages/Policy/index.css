@@ -1,0 +1,13 @@
+.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+	color: #ffbd2f;
+}
+.ant-tabs .ant-tabs-tab:hover {
+	color: #ffbd2f;
+}
+.ant-tabs-nav .ant-tabs-tab-active {
+	border-bottom: 2px solid #ffbd2f !important;
+	z-index: 100;
+}
+.ant-tabs .ant-tabs-ink-bar {
+	background: #ffbd2f;
+}

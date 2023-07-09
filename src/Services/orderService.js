@@ -159,7 +159,6 @@ export const downloadImageService = (params) => {
 	);
 };
 export const uploadImageService = (data) => {
-	console.log(data);
 	return request(
 		'https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/upload',
 		{
