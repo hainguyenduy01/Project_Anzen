@@ -25,7 +25,7 @@ import { FORMATS_DATE } from "../../Utils/constants";
 import dayjs from "dayjs";
 import { getDetailAccounting, selectOrder } from "../../Slice/orderSlice";
 import { downloadCodeBillAsync } from "../../Slice/policySlice";
-import ModalDetail from "../Policy/components/modalDetail";
+import ModalDetail from "../Accountant/components/modalDetail";
 
 const Accountant = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);

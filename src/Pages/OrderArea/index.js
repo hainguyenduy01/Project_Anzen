@@ -114,6 +114,21 @@ const OrderArea = () => {
 		setIsModalOpen(false);
 		setDataTableProduct([]);
 	};
+	const showPaymentType = (text) => {
+		switch (text) {
+			case 'TTS':
+				return 'TTS';
+			case 'TDN':
+				return 'TĐN';
+			case 'DTT':
+				return 'ĐTT';
+			default:
+				return 'Khác';
+		}
+	};
+	const totalMoney =
+		detailAccounting?.totalAmount + detailAccounting?.additionalAmount;
+
 	const shipperDetail = order.shipper?.result;
 	const customerDetail = order.shiperDetail?.result;
 	useEffect(() => {
@@ -260,6 +275,7 @@ const OrderArea = () => {
 			title: 'HTTT',
 			dataIndex: 'paymentType',
 			key: 'paymentType',
+			render: (text, record) => showPaymentType(text),
 		},
 		{
 			title: 'Hoàn tất',
@@ -372,6 +388,10 @@ const OrderArea = () => {
 			<Tooltip title="Đơn hàng đã đi">
 				<Tag className="tag_status" color="#017003" />
 			</Tooltip>
+		) : text === 'Transhipment' ? (
+			<Tooltip title="Chuyển tải">
+				<Tag className="tag_status" color="#ffbd2f" />
+			</Tooltip>
 		) : (
 			<Tooltip title="Đơn hàng tồn kho">
 				<Tag className="tag_status" color="#ff4d4f" />
@@ -461,7 +481,6 @@ const OrderArea = () => {
 			if (values.id) {
 				const data = {
 					...values,
-
 					code: values.isGenCode,
 					orderDate: values.orderDate.format(DATE_FORMAT),
 					deliveryOrderDetails: dataTableProduct,
@@ -944,13 +963,15 @@ const OrderArea = () => {
 							columns={columnsQuantityAccounting}
 							dataSource={detailAccounting?.deliveryOrderDetails}
 							pagination={false}
-						></Table>
+						/>
 						<br />
 						<Row>
 							<Col span={12}>
 								<Space>
 									<strong>Cước vận chuyển:</strong>
-									<span>{detailAccounting?.totalAmount}</span>
+									<span>
+										{detailAccounting?.totalAmount.toLocaleString('en')}
+									</span>
 								</Space>
 							</Col>
 							<Col span={12}>
@@ -994,18 +1015,17 @@ const OrderArea = () => {
 								</tr>
 								<tr>
 									<td style={{ paddingLeft: '10px' }}>Bán ra</td>
-									<td>{detailAccounting?.totalAmount}</td>
+									<td>{detailAccounting?.totalAmount.toLocaleString('en')}</td>
 								</tr>
 								<tr>
 									<td style={{ paddingLeft: '10px' }}>Phát sinh khác</td>
-									<td>{detailAccounting?.additionalAmount}</td>
+									<td>
+										{detailAccounting?.additionalAmount.toLocaleString('en')}
+									</td>
 								</tr>
 								<tr>
 									<td style={{ paddingLeft: '10px' }}>Tổng giá bán</td>
-									<td>
-										{detailAccounting?.totalAmount +
-											detailAccounting?.additionalAmount}
-									</td>
+									<td>{totalMoney.toLocaleString('en')}</td>
 								</tr>
 							</tbody>
 						</table>
@@ -1388,7 +1408,12 @@ const OrderArea = () => {
 								name="totalAmount"
 								rules={[{ required: true, message: 'Vui lòng nhập!' }]}
 							>
-								<InputNumber />
+								<InputNumber
+									formatter={(value) =>
+										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									}
+									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+								/>
 							</Form.Item>
 						</Col>
 					</Row>
@@ -1412,7 +1437,12 @@ const OrderArea = () => {
 									name="paymentTypeValue1"
 									className="multi-payment-type-right"
 								>
-									<InputNumber />
+									<InputNumber
+										formatter={(value) =>
+											`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										}
+										parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+									/>
 								</Form.Item>
 							</Col>
 							<Col xs={24} sm={24} md={6}>
@@ -1433,7 +1463,12 @@ const OrderArea = () => {
 									name="paymentTypeValue2"
 									className="multi-payment-type-right"
 								>
-									<InputNumber />
+									<InputNumber
+										formatter={(value) =>
+											`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										}
+										parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+									/>
 								</Form.Item>
 							</Col>
 						</Row>
@@ -1441,7 +1476,12 @@ const OrderArea = () => {
 					<Row gutter={24}>
 						<Col xs={24} sm={24} md={12}>
 							<Form.Item label="Phát sinh khác" name="additionalAmount">
-								<Input />
+								<InputNumber
+									formatter={(value) =>
+										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									}
+									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+								/>
 							</Form.Item>
 						</Col>
 					</Row>
@@ -1480,7 +1520,12 @@ const OrderArea = () => {
 											{ required: true, message: 'Vui lòng nhập Số lượng!' },
 										]}
 									>
-										<InputNumber min={1} max={1000} />
+										<InputNumber
+											formatter={(value) =>
+												`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+											}
+											parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+										/>
 									</Form.Item>
 								</Col>
 							</Row>
@@ -1496,7 +1541,12 @@ const OrderArea = () => {
 											},
 										]}
 									>
-										<InputNumber min={1} max={1000} />
+										<InputNumber
+											formatter={(value) =>
+												`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+											}
+											parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+										/>
 									</Form.Item>
 								</Col>
 								<Col xs={24} sm={24} md={12}>
@@ -1510,7 +1560,12 @@ const OrderArea = () => {
 											},
 										]}
 									>
-										<InputNumber min={1} max={100} />
+										<InputNumber
+											formatter={(value) =>
+												`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+											}
+											parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+										/>
 									</Form.Item>
 								</Col>
 							</Row>
@@ -1557,7 +1612,11 @@ const OrderArea = () => {
 				</Form>
 				<div className="pt-3">
 					{dataTableProduct.length > 0 && (
-						<Table dataSource={dataTableProduct} columns={columnTableProduct} />
+						<Table
+							dataSource={dataTableProduct}
+							columns={columnTableProduct}
+							rowKey={(record) => record.id}
+						/>
 					)}
 				</div>
 			</Modal>

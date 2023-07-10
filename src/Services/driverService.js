@@ -20,15 +20,15 @@ export const createDriverService = (data) => {
     })
 }
 
-export const updateDriverService = (id,data) => {
-    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/Drivers/${id}`, {
-        method: 'PATCH',
-        data
+
+export const searchLicensePlateService = () =>{
+    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/Drivers/search-by-licenseplate`,{
+        method: 'GET'
     })
 }
 
-export const searchLicensePlateService = (id) =>{
-    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/Drivers/search-by-licenseplate/${id}`,{
+export const exportGridDService = () =>{
+    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/Drivers/export-grid`,{
         method: 'GET'
     })
 }
