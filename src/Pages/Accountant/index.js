@@ -45,7 +45,7 @@ const Accountant = () => {
   console.log(listAccountant);
   const { isLoading } = listAccountant;
   const detailBillOfLadings = listAccountant?.listAccount?.result;
-  console.log(detailBillOfLadings);
+  // console.log(detailBillOfLadings);
 
   const order = useSelector(selectOrder);
   console.log(order);
@@ -100,7 +100,7 @@ const Accountant = () => {
       title: "Thao tác",
       dataIndex: "isDone",
       key: "isDone",
-      render: (text, record) => showIsDone(text),
+      render: (text, record, id) => showIsDone(record, id),
       align: "center",
     },
   ];
@@ -158,15 +158,172 @@ const Accountant = () => {
       key: "totalAmount",
     },
   ];
-  const showIsDone = (isDone) => {
-    return isDone === true ? "" : <Button>Hoàn thành</Button>;
+  const columnsQuantityAccounting = [
+    {
+      title: "Tên Hàng",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "ĐVT",
+      dataIndex: "unit",
+      key: "unit",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
+      title: "Khối lượng",
+      dataIndex: "mass",
+      key: "mass",
+    },
+    {
+      title: "Trọng lượng",
+      dataIndex: "weight",
+      key: "weight",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      key: "note",
+    },
+  ];
+  const columnsTransborder = [
+    {
+      title: "Tên công ty",
+      dataIndex: "ladingInfos",
+      key: "ladingInfos",
+    },
+    {
+      title: "Phí",
+      dataIndex: "transborderFees",
+      key: "transborderFees",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "EditTransborder",
+      key: "EditTransborder",
+      // render: () => ,
+      align: "center",
+    },
+  ];
+  const columnsFreight = [
+    {
+      title: "Tên công ty",
+      dataIndex: "ladingInfos",
+      key: "ladingInfos",
+    },
+    {
+      title: "Phí",
+      dataIndex: "freightFees",
+      key: "freightFees",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "EditFreight",
+      key: "EditFreight",
+      // render: () => ,
+      align: "center",
+    },
+  ];
+  const columnsReceiving = [
+    {
+      title: "Tên công ty",
+      dataIndex: "ladingInfos",
+      key: "ladingInfos",
+    },
+    {
+      title: "Phí",
+      dataIndex: "receivingFees",
+      key: "receivingFees",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "EditReceiving",
+      key: "EditReceiving",
+      // render: () => ,
+      align: "center",
+    },
+  ];
+  const columnsOther = [
+    {
+      title: "Tên công ty",
+      dataIndex: "ladingInfos",
+      key: "ladingInfos",
+    },
+    {
+      title: "Phí",
+      dataIndex: "otherFees",
+      key: "otherFees",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "EditOrther",
+      key: "EditOrther",
+      // render: () => ,
+      align: "center",
+    },
+  ];
+  const columnsDrivers = [
+		{
+			title: 'Mã bảng kê',
+      dataIndex: "code",
+      key: "code",
+		},
+		{
+			title: 'Tên lái xe',
+      dataIndex: "driver",
+      key: "driver",
+		},
+		{
+			title: 'Bằng lái xe',
+      dataIndex: "drivingLicense",
+      key: "drivingLicense",
+		},
+		{
+			title: 'Số điện thoại tài xế',
+      dataIndex: "driverPhone",
+      key: "driverPhone",
+		},
+		{
+			title: 'Biển số xe	',
+      dataIndex: "driverIdentity",
+      key: "driverIdentity",
+		},
+		{
+			title: 'Đối tác',
+      dataIndex: "partner",
+      key: "partner",
+		},
+		{
+			title: 'SĐT Đối tác',
+      dataIndex: "partnerPhone",
+      key: "partnerPhone",
+		},
+	];
+  const showIsDone = (record) => {
+    return record.isDone === true ? (
+      ""
+    ) : (
+      <Button onClick={() => onChangeActive(record.id)}>Hoàn thành</Button>
+    );
+  };
+  const onChangeActive = (record) => {
+    const params = {
+      id: record.id,
+      isDone: true,
+    };
+    console.log("3", params);
+    // dispatch(getBillOfLadingsAsync(params));
   };
   const handleCheckbox = (e) => {
     setShowAdvancedSearch(e.target.checked);
   };
-  const clearForm = (values) => {
+  const clearForm = (pages) => {
     formSearch.resetFields();
-    setPages(values);
+    dispatch(getBillOfLadingsAsync(pages));
   };
   const showCode = (code, record) => {
     return code === false ? (
@@ -202,10 +359,10 @@ const Accountant = () => {
   };
   const getDetailCode = async (id) => {
     await dispatch(getDetailBillOfLadings(id));
-    await dispatch(getDetailAccounting(id));
     setIsModalOpenCode(true);
   };
   const getDetailCode2 = async (id) => {
+    await dispatch(getDetailAccounting(id));
     setIsModalOpenCode2(true);
   };
   const onFinishSearch = async (values) => {
@@ -310,7 +467,12 @@ const Accountant = () => {
                 className="form__item"
                 values="number"
               >
-                <InputNumber />
+                <InputNumber
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -324,7 +486,10 @@ const Accountant = () => {
                 className="form__item"
                 values="number"
               >
-                <InputNumber />
+                <InputNumber formatter={(value) =>
+										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									}
+									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}/>
               </Form.Item>
             </Col>
           </Row>
@@ -375,19 +540,19 @@ const Accountant = () => {
           <Col span={8}>
             <Space>
               <strong>Tên công ty:</strong>
-              <span>{detailBillOfLadings?.a}</span>
+              <span>{detailBillOfLadings?.partner}</span>
             </Space>
           </Col>
           <Col span={8}>
             <Space>
               <strong>Số điện thoại:</strong>
-              <span>{detailBillOfLadings?.b}</span>
+              <span>{detailBillOfLadings?.partnerPhone}</span>
             </Space>
           </Col>
           <Col span={8}>
             <Space>
               <strong>Mã số thuế:</strong>
-              <span>{detailBillOfLadings?.c}</span>
+              <span>{detailBillOfLadings?.partnerTax}</span>
             </Space>
           </Col>
         </Row>
@@ -396,7 +561,7 @@ const Accountant = () => {
           <Col span={8}>
             <Space>
               <strong>Số hợp đồng:</strong>
-              <span>{detailBillOfLadings?.d}</span>
+              <span>{detailBillOfLadings?.referenceContract}</span>
             </Space>
           </Col>
           <Col span={8}>
@@ -444,7 +609,8 @@ const Accountant = () => {
           <Col span={8}>
             <Space>
               <strong>Tổng cước cho xe:</strong>
-              <span>{detailBillOfLadings?.totalCOD}</span>
+              <span >{detailBillOfLadings?.totalCOD}</span>
+              
             </Space>
           </Col>
         </Row>
@@ -588,8 +754,8 @@ const Accountant = () => {
         <br />
         <Table
           rowKey={(record) => record.id}
-          // columns={columnsQuantityAccounting}
-          // dataSource={detailAccounting?.deliveryOrderDetails}
+          columns={columnsQuantityAccounting}
+          dataSource={detailBillOfLadings?.deliveryOrderBillOfLadings}
           pagination={false}
         ></Table>
         <br />
@@ -607,7 +773,10 @@ const Accountant = () => {
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
             <Form.Item label="Phát sinh khác" name="" className="form__item">
-              <InputNumber />
+              <InputNumber formatter={(value) =>
+										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									}
+									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}/>
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
@@ -631,7 +800,10 @@ const Accountant = () => {
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
             <Form.Item label="Phí" name="" className="form__item">
-              <InputNumber />
+              <InputNumber formatter={(value) =>
+										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									}
+									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}/>
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
@@ -680,7 +852,7 @@ const Accountant = () => {
             <strong>Trung chuyển</strong>
             <Table
               rowKey={(record) => record.id}
-              // columns={columnsTransborder}
+              columns={columnsTransborder}
               // dataSource={
               // 	detailAccounting?.ladingInfos &&
               // 	detailAccounting?.transborderFees
@@ -694,7 +866,7 @@ const Accountant = () => {
             <strong>Phí nhận hàng</strong>
             <Table
               rowKey={(record) => record.id}
-              // columns={columnsReceiving}
+              columns={columnsReceiving}
               // dataSource={
               // 	detailAccounting?.ladingInfos &&
               // 	detailAccounting?.receivingFees
@@ -708,7 +880,7 @@ const Accountant = () => {
             <strong>Phí bo giao hàng</strong>
             <Table
               rowKey={(record) => record.id}
-              // columns={columnsFreight}
+              columns={columnsFreight}
               // dataSource={
               // 	detailAccounting?.ladingInfos &&
               // 	detailAccounting?.freightFees
@@ -722,7 +894,7 @@ const Accountant = () => {
             <strong>Khác</strong>
             <Table
               rowKey={(record) => record.id}
-              // columns={columnsOther}
+              columns={columnsOther}
               // dataSource={
               // detailAccounting?.ladingInfos && detailAccounting?.otherFees
               // }
@@ -735,8 +907,8 @@ const Accountant = () => {
             <strong>Danh sách xe và tài xế đi hàng</strong>
             <Table
               rowKey={(record) => record.id}
-              // columns={columnsDrivers}
-              dataSource={null}
+              columns={columnsDrivers}
+              // dataSource={listAccountant?.listAccount?.result}
             />
           </Col>
         </Row>
