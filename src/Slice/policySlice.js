@@ -6,6 +6,8 @@ import {
 	getAllPolicyService,
 	getDetailCodeBillService,
 	getInfoImageService,
+	getProductToGoService,
+	postProductService,
 	uploadImageService,
 } from '../Services/policyService';
 import { toast } from 'react-toastify';
@@ -16,6 +18,7 @@ const initialState = {
 	detailCode: {},
 	listInfoImage: {},
 	uploadImage: [],
+	productToGo: [],
 };
 export const getAllPolicyAsync = createAsyncThunk(
 	'getAllPolicy',
@@ -63,6 +66,20 @@ export const uploadImageAsync = createAsyncThunk(
 	'uploadImage',
 	async (params) => {
 		const response = await uploadImageService(params);
+		return response.data;
+	},
+);
+export const getProductToGoAsync = createAsyncThunk(
+	'getProductToGo',
+	async (params) => {
+		const response = await getProductToGoService(params);
+		return response.data;
+	},
+);
+export const postProductAsync = createAsyncThunk(
+	'postDeliveryOrder',
+	async (params) => {
+		const response = await postProductService(params);
 		return response.data;
 	},
 );
@@ -172,6 +189,23 @@ export const policySlice = createSlice({
 			.addCase(uploadImageAsync.fulfilled, (state, action) => {
 				if (action.payload) {
 					state.uploadImage = action.payload;
+					state.isLoading = false;
+				}
+			})
+			.addCase(getProductToGoAsync.pending, (state) => {
+				state.isLoading = true;
+			})
+			.addCase(getProductToGoAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.productToGo = action.payload;
+					state.isLoading = false;
+				}
+			})
+			.addCase(postProductAsync.pending, (state) => {
+				state.isLoading = true;
+			})
+			.addCase(postProductAsync.fulfilled, (state, action) => {
+				if (action.payload) {
 					state.isLoading = false;
 				}
 			});

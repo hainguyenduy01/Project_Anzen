@@ -72,3 +72,22 @@ export const uploadImageService = (data) => {
 		},
 	);
 };
+export const getProductToGoService = (params) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/getforbl?${queryString.stringify(
+			params,
+		)}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const postProductService = (data) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings`,
+		{
+			method: 'POST',
+			data,
+		},
+	);
+};
