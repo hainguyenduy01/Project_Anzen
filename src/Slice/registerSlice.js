@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createUserService, deleteUserService, getAllUserService } from "../Services/registerService";
+import { activeUserService, changeUserRoleService, createUserService, deleteUserService, getAllUserService } from "../Services/registerService";
 
 const initialState= {
     isLoading: false,
@@ -23,6 +23,20 @@ export const createUserAsync = createAsyncThunk(
     "createUser",
     async (params) => {
         const response = await createUserService(params);
+        return response.data;
+    }
+);
+export const changeUserRoleAsync = createAsyncThunk(
+    "changeUserRole",
+    async (data) => {
+        const response = await changeUserRoleService(data);
+        return response.data;
+    }
+);
+export const activeUserAsync = createAsyncThunk(
+    "activeUser",
+    async (data) => {
+        const response = await activeUserService(data);
         return response.data;
     }
 );
@@ -56,6 +70,24 @@ export const userSlice = createSlice({
             state.isLoading = true;
         })
         .addCase(createUserAsync.fulfilled,(state, action) =>{
+            if(action.payload){
+                state.isLoading = false;
+                state.list = action.payload;
+            }
+        })
+        .addCase(changeUserRoleAsync.pending,(state) =>{
+            state.isLoading = true;
+        })
+        .addCase(changeUserRoleAsync.fulfilled,(state, action) =>{
+            if(action.payload){
+                state.isLoading = false;
+                state.list = action.payload;
+            }
+        })
+        .addCase(activeUserAsync.pending,(state) =>{
+            state.isLoading = true;
+        })
+        .addCase(activeUserAsync.fulfilled,(state, action) =>{
             if(action.payload){
                 state.isLoading = false;
                 state.list = action.payload;

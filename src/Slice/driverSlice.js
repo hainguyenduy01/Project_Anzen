@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { createDriverService, deleteDriverService, getAllDriverService, searchLicensePlateService, updateDriverService } from "../Services/driverService"
+import { createDriverService, deleteDriverService, exportGridDService, getAllDriverService, searchLicensePlateService } from "../Services/driverService"
 
 const initialState= {
     isLoading: false,
@@ -26,17 +26,19 @@ export const createDriverAsync = createAsyncThunk(
         return response.data;
     }
 );
-export const updateDriverAsync = createAsyncThunk(
-    "updateDriver",
-    async (params) => {
-        const response = await updateDriverService(params.id,params);
-        return response.data;
-    }
-);
+
 export const searchLicensePlateAsync = createAsyncThunk(
     "searchLicensePlate",
     async (params) => {
         const response = await searchLicensePlateService(params.id,params);
+        return response.data;
+    }
+);
+
+export const exportGridDAsync = createAsyncThunk(
+    "exportGridDriver",
+    async (params) => {
+        const response = await exportGridDService(params);
         return response.data;
     }
 );
@@ -75,19 +77,19 @@ export const driverSlice = createSlice({
                 state.list = action.payload;
             }
         })
-        .addCase(updateDriverAsync.pending,(state) =>{
+        .addCase(searchLicensePlateAsync.pending,(state) =>{
             state.isLoading = true;
         })
-        .addCase(updateDriverAsync.fulfilled,(state, action) =>{
+        .addCase(searchLicensePlateAsync.fulfilled,(state, action) =>{
             if(action.payload){
                 state.isLoading = false;
                 state.list = action.payload;
             }
         })
-        .addCase(searchLicensePlateAsync.pending,(state) =>{
+        .addCase(exportGridDAsync.pending,(state) =>{
             state.isLoading = true;
         })
-        .addCase(searchLicensePlateAsync.fulfilled,(state, action) =>{
+        .addCase(exportGridDAsync.fulfilled,(state, action) =>{
             if(action.payload){
                 state.isLoading = false;
                 state.list = action.payload;

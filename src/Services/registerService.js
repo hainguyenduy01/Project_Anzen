@@ -19,4 +19,16 @@ export const createUserService = (data) => {
         data
     })
 }
+export const changeUserRoleService = (data) => {
+    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/ApplicationUser/change-role`,{
+        method: 'POST',
+        data
+    })
+}
+export const activeUserService = (data) => {
+    return request(`https://api-uat-anzen-tms.azurewebsites.net/api/ApplicationUser/active`,{
+        method: 'POST',
+        data
+    })
+}
 
