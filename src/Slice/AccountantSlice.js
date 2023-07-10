@@ -20,7 +20,6 @@ const initialState = {
       return response.data;
     },
   );
-  
   export const AccountantSlice = createSlice({
     name: "BillOfLadings",
     initialState,
