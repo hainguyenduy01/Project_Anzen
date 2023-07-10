@@ -4,6 +4,7 @@ const initialState = {
     isLoading: false,
     listA: {},
     listAccount: {},
+    detailCode: {},
   };
 
   export const getBillOfLadingsAsync = createAsyncThunk(
@@ -41,7 +42,7 @@ const initialState = {
         .addCase(getDetailBillOfLadings.fulfilled, (state, action) => {
           if (action.payload) {
             state.isLoading = false;
-            state.listAccount = action.payload;
+            state.detailCode = action.payload;
           }
         })
       },

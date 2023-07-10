@@ -69,11 +69,11 @@ export const customerSlice = createSlice({
         }
       })
       .addCase(exportGridAsync.pending, (state) => {
-				state.isloading = true;
+				state.isLoading = true;
 			})
 			.addCase(exportGridAsync.fulfilled, (state, action) => {
 				if (action.payload) {
-					state.isloading = false;
+					state.isLoading = false;
 				}
 			})
   },

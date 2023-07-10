@@ -25,6 +25,7 @@ import { FORMATS_DATE } from "../../Utils/constants";
 import dayjs from "dayjs";
 import { getDetailAccounting, selectOrder } from "../../Slice/orderSlice";
 import { downloadCodeBillAsync } from "../../Slice/policySlice";
+import ModalDetail from "../Policy/components/modalDetail";
 
 const Accountant = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
@@ -42,6 +43,7 @@ const Accountant = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages]);
   const listAccountant = useSelector(selectBillOfLading);
+  const { detailCode } = listAccountant;
   console.log(listAccountant);
   const { isLoading } = listAccountant;
   const detailBillOfLadings = listAccountant?.listAccount?.result;
@@ -95,8 +97,7 @@ const Accountant = () => {
       title: "Tổng số tiền",
       dataIndex: "totalCOD",
       key: "totalCOD",
-      render: (_, record) => <p>{record.totalCOD.toLocaleString('en')}</p>,
-
+      render: (_, record) => <p>{record.totalCOD.toLocaleString("en")}</p>,
     },
     {
       title: "Thao tác",
@@ -153,15 +154,13 @@ const Accountant = () => {
       title: "Số tiền lái xe thu",
       dataIndex: "cod",
       key: "cod",
-      render: (_, record) => <p>{record.cod.toLocaleString('en')}</p>,
-
+      render: (_, record) => <p>{record.cod.toLocaleString("en")}</p>,
     },
     {
       title: "Số tiền",
       dataIndex: "totalAmount",
       key: "totalAmount",
-      render: (_, record) => <p>{record.totalAmount.toLocaleString('en')}</p>,
-
+      render: (_, record) => <p>{record.totalAmount.toLocaleString("en")}</p>,
     },
   ];
   const columnsQuantityAccounting = [
@@ -273,42 +272,42 @@ const Accountant = () => {
     },
   ];
   const columnsDrivers = [
-		{
-			title: 'Mã bảng kê',
+    {
+      title: "Mã bảng kê",
       dataIndex: "code",
       key: "code",
-		},
-		{
-			title: 'Tên lái xe',
+    },
+    {
+      title: "Tên lái xe",
       dataIndex: "driver",
       key: "driver",
-		},
-		{
-			title: 'Bằng lái xe',
+    },
+    {
+      title: "Bằng lái xe",
       dataIndex: "drivingLicense",
       key: "drivingLicense",
-		},
-		{
-			title: 'Số điện thoại tài xế',
+    },
+    {
+      title: "Số điện thoại tài xế",
       dataIndex: "driverPhone",
       key: "driverPhone",
-		},
-		{
-			title: 'Biển số xe	',
+    },
+    {
+      title: "Biển số xe	",
       dataIndex: "driverIdentity",
       key: "driverIdentity",
-		},
-		{
-			title: 'Đối tác',
+    },
+    {
+      title: "Đối tác",
       dataIndex: "partner",
       key: "partner",
-		},
-		{
-			title: 'SĐT Đối tác',
+    },
+    {
+      title: "SĐT Đối tác",
       dataIndex: "partnerPhone",
       key: "partnerPhone",
-		},
-	];
+    },
+  ];
   const showIsDone = (record) => {
     return record.isDone === true ? (
       ""
@@ -492,10 +491,12 @@ const Accountant = () => {
                 className="form__item"
                 values="number"
               >
-                <InputNumber formatter={(value) =>
-										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									}
-									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}/>
+                <InputNumber
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -522,6 +523,15 @@ const Accountant = () => {
           </Col>
         </Row>
       </Form>
+      <ModalDetail
+        detailCode={detailCode}
+        isModalOpenCode={isModalOpenCode}
+        handleCancelCode={handleCancelCode}
+        downloadCodeBill={downloadCodeBill}
+        isLoading={isLoading}
+        pages={pages}
+        setPages={setPages}
+      />
       <Modal
         getContainer={false}
         title={`BẢNG KÊ GIAO NHẬN VẬN CHUYỂN ---- ${detailBillOfLadings?.code}`}
@@ -615,8 +625,7 @@ const Accountant = () => {
           <Col span={8}>
             <Space>
               <strong>Tổng cước cho xe:</strong>
-              <span >{detailBillOfLadings?.totalCOD.toLocaleString('en')}</span>
-              
+              <span>{detailBillOfLadings?.totalCOD.toLocaleString("en")}</span>
             </Space>
           </Col>
         </Row>
@@ -646,7 +655,9 @@ const Accountant = () => {
             <Col span={6}>
               <Space>
                 <strong>Tổng cộng:</strong>
-                <span>{detailBillOfLadings?.totalCOD.toLocaleString('en')}</span>
+                <span>
+                  {detailBillOfLadings?.totalCOD.toLocaleString("en")}
+                </span>
               </Space>
             </Col>
           </Row>
@@ -656,7 +667,9 @@ const Accountant = () => {
             <Col span={6}>
               <Space>
                 <strong>Đã tạm ứng:</strong>
-                <span>{detailBillOfLadings?.advanceAmount.toLocaleString('en')}</span>
+                <span>
+                  {detailBillOfLadings?.advanceAmount.toLocaleString("en")}
+                </span>
               </Space>
             </Col>
           </Row>
@@ -779,10 +792,12 @@ const Accountant = () => {
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
             <Form.Item label="Phát sinh khác" name="" className="form__item">
-              <InputNumber formatter={(value) =>
-										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									}
-									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}/>
+              <InputNumber
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
@@ -806,10 +821,12 @@ const Accountant = () => {
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
             <Form.Item label="Phí" name="" className="form__item">
-              <InputNumber formatter={(value) =>
-										`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									}
-									parser={(value) => value.replace(/\$\s?|(,*)/g, '')}/>
+              <InputNumber
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6} className="pe-3 mb-3">
