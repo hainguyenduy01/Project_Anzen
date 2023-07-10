@@ -74,9 +74,9 @@ const Customers = () => {
   const exportExcel = () => {
     setIsModalOpenExcel(true);
   };
-  const clearForm = (values) => {
+  const clearForm = (pages) => {
     formSearch.resetFields();
-    setPages(values);
+    dispatch(getAllCustomersAsync(pages))
   };
 
   const [customerListData, setCustomerListData] = useState([]);
@@ -175,7 +175,7 @@ const Customers = () => {
       pageSize: 10,
       dateSearch: undefined,
     };
-    setPages(params);
+    dispatch(getAllCustomersAsync(params))
   };
   const moveToExcel = async () => {
     setIsModalOpenExcel(false);
