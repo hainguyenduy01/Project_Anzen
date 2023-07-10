@@ -461,7 +461,6 @@ const OrderArea = () => {
 			if (values.id) {
 				const data = {
 					...values,
-
 					code: values.isGenCode,
 					orderDate: values.orderDate.format(DATE_FORMAT),
 					deliveryOrderDetails: dataTableProduct,
