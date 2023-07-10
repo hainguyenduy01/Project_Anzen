@@ -94,7 +94,6 @@ const Customers = () => {
   const updateCustomer = (record) => {
     // console.log(record)
     setTitleForm("update");
-    form.resetFields();
     setIsModalOpen(true);
     form.setFieldsValue({
       ...record,
@@ -106,7 +105,7 @@ const Customers = () => {
       title: "STT",
       dataIndex: "id",
       key: "index",
-      render: (_, record, index) =>  (pages.PageIndex - 1) * pages.PageSize + index + 1,
+      render: (_, record, index) =>  (pages.PageIndex - 1) * 10 + index + 1,
     },
     {
       title: "Tên",
