@@ -95,6 +95,8 @@ const Accountant = () => {
       title: "Tổng số tiền",
       dataIndex: "totalCOD",
       key: "totalCOD",
+      render: (_, record) => <p>{record.totalCOD.toLocaleString('en')}</p>,
+
     },
     {
       title: "Thao tác",
@@ -151,11 +153,15 @@ const Accountant = () => {
       title: "Số tiền lái xe thu",
       dataIndex: "cod",
       key: "cod",
+      render: (_, record) => <p>{record.cod.toLocaleString('en')}</p>,
+
     },
     {
       title: "Số tiền",
       dataIndex: "totalAmount",
       key: "totalAmount",
+      render: (_, record) => <p>{record.totalAmount.toLocaleString('en')}</p>,
+
     },
   ];
   const columnsQuantityAccounting = [
@@ -609,7 +615,7 @@ const Accountant = () => {
           <Col span={8}>
             <Space>
               <strong>Tổng cước cho xe:</strong>
-              <span >{detailBillOfLadings?.totalCOD}</span>
+              <span >{detailBillOfLadings?.totalCOD.toLocaleString('en')}</span>
               
             </Space>
           </Col>
@@ -640,7 +646,7 @@ const Accountant = () => {
             <Col span={6}>
               <Space>
                 <strong>Tổng cộng:</strong>
-                <span>{detailBillOfLadings?.totalCOD}</span>
+                <span>{detailBillOfLadings?.totalCOD.toLocaleString('en')}</span>
               </Space>
             </Col>
           </Row>
@@ -650,7 +656,7 @@ const Accountant = () => {
             <Col span={6}>
               <Space>
                 <strong>Đã tạm ứng:</strong>
-                <span>{detailBillOfLadings?.advanceAmount}</span>
+                <span>{detailBillOfLadings?.advanceAmount.toLocaleString('en')}</span>
               </Space>
             </Col>
           </Row>
