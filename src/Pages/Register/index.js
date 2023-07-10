@@ -1,17 +1,20 @@
 import { Button, Form, Space, Table, Modal, Input, Row, Col, Switch, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUserAsync, createUserAsync, deleteUserAsync, selectUsers } from "../../Slice/registerSlice";
+import { getAllUserAsync, createUserAsync, selectUsers, changeUserRoleAsync, activeUserAsync } from "../../Slice/registerSlice";
+import "./Register.css";
 const Register = () => {
 
 	const { Option } = Select;
 	const [form] = Form.useForm();
+	const [roleForm] = Form.useForm();
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 	const [pages, setPages] = useState({ PageIndex: 1, PageSize: 10 });
 	const dispatch = useDispatch();
 	useEffect(() => {
 		dispatch(getAllUserAsync(pages));
-	}, [pages]);
+	}, [getAllUserAsync, pages]);
 	const user = useSelector(selectUsers)
 	const showModal = () => {
 		setIsModalOpen(true);
@@ -22,22 +25,42 @@ const Register = () => {
 	const handleCancel = () => {
 		setIsModalOpen(false);
 	};
-	const deleteUser = async (id) => {
-		await dispatch(deleteUserAsync(id));
-		dispatch(getAllUserAsync());
-	};
 	const onFinish = async (values) => {
 		await dispatch(createUserAsync(values));
 		dispatch(getAllUserAsync());
 		setIsModalOpen(false);
+		form.resetFields();
 	};
+	const showRoleModal = (record) => {
+		roleForm.resetFields();
+		setIsRoleModalOpen(true);
+		roleForm.setFieldsValue({
+			...record,
+		})
+	};
+
+	const handleRoleCancel = () => {
+		setIsRoleModalOpen(false);
+	};
+
+	const onFinishRole = async (values) => {
+		await dispatch(changeUserRoleAsync(values));
+		dispatch(getAllUserAsync());
+		setIsRoleModalOpen(false);
+	}
+
+	const onChange = async (data) => {
+		await dispatch(activeUserAsync(data));
+		dispatch(getAllUserAsync());
+	}
+
 
 	const columns = [
 		{
 			title: "STT",
 			dataIndex: "id",
 			key: "id",
-			render: (_, record, index) => <p>{index + 1}</p>,
+			render: (_, record, index) => (pages.PageIndex - 1) * pages.PageSize + index + 1,
 		},
 		{
 			title: "Tên đầy đủ",
@@ -71,34 +94,101 @@ const Register = () => {
 		},
 		{
 			title: "Hoạt động",
+			dataIndex: "isActive",
 			key: "activity",
-			render: (_, record) => (
+			render: (text, record) => (
 				<Space size="middle">
-					<Switch />
-					<Button className="ant-btn ant-btn-default ant-btn-dangerous">Sửa quyền</Button>
+					<Switch checked={text} onChange={() => onChange({ id: record.id, isActive: !record.isActive })} />
+					<Button onClick={() => showRoleModal(record)} className="ant-btn ant-btn-default ant-btn-dangerous">Sửa quyền</Button>
 				</Space>
 			),
 		},
 	];
 
-	const handleTableChange = (page) => {
-		const values = {
-			pageIndex: page.current,
-			pageSize: page.pageSize,
-		};
-		setPages(values);
-	};
-
 	return (
 		<>
-			<Row className="pd-3">
+			<Row className="pe-3 mb-3">
 				<Col xs={24} sm={18} md={18}>
 					<Button type="primary" onClick={showModal} style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
 						Tạo mới tài khoản
 					</Button>
 				</Col>
 			</Row>
-			<Modal title="BIÊN NHẬN VẬN CHUYỂN" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+			<Modal title="THAY ĐỔI QUYỀN" open={isRoleModalOpen} onCancel={handleRoleCancel} 
+			>
+				<Form
+					name="roleForm"
+					form={roleForm}
+					labelCol={{
+						span: 8,
+					}}
+					wrapperCol={{
+						span: 16,
+					}}
+					style={{
+						maxWidth: 600,
+					}}
+					initialValues={{
+						remember: true,
+					}}
+					autoComplete="off"
+					onFinish={onFinishRole}>
+					<Form.Item
+						name="id"
+					/>
+
+					<Form.Item
+						label="Quyền"
+						name="roleName"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your role!',
+							},
+						]}
+					>
+
+						<Select>
+							<Option value="Admin">Admin</Option>
+							<Option value="keToan">Kế toán tổng hợp</Option>
+							<Option value="Accounting">Accounting</Option>
+							<Option value="Manager">Manager</Option>
+							<Option value="Sale">Sale</Option>
+							<Option value="InventoryReceiving">InventoryReceiving</Option>
+							<Option value="InventoryDelivery">InventoryDelivery</Option>
+						</Select>
+					</Form.Item>
+					<Form.Item
+						wrapperCol={{
+							offset: 8,
+							span: 16,
+						}}
+					>
+						<Button type="primary" htmlType="submit">
+							Submit
+						</Button>
+					</Form.Item>
+				</Form>
+			</Modal>
+			<Modal title="TẠO TÀI KHOẢN"
+				open={isModalOpen}
+				onOk={handleOk}
+				onCancel={handleCancel}
+				footer={[
+					<Button key="cancel" onClick={handleCancel}>
+						Đóng
+					</Button>,
+
+					<Button
+						key="ok"
+						htmlType="submit"
+						type="primary"
+						form="form"
+						style={{ backgroundColor: "#ffbd2f", color: "#fff" }}
+					>
+						Gửi
+					</Button>,
+				]}>
 				<Form
 					name="form"
 					form={form}
@@ -121,12 +211,24 @@ const Register = () => {
 					<Form.Item
 						label="STT"
 						name="id"
-
+						hidden={true}
 					>
 						<Input disabled />
 					</Form.Item>
 					<Form.Item
-						label="Tên người dùng"
+						label="Tên"
+						name="name"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your name!',
+							},
+						]}
+					>
+						<Input placeholder="Nhập Tên" />
+					</Form.Item>
+					<Form.Item
+						label="Tên đầy đủ"
 						name="fullName"
 						rules={[
 							{
@@ -135,7 +237,7 @@ const Register = () => {
 							},
 						]}
 					>
-						<Input />
+						<Input placeholder="Nhập Tên đầy đủ" />
 					</Form.Item>
 
 					<Form.Item
@@ -148,7 +250,7 @@ const Register = () => {
 							},
 						]}
 					>
-						<Input />
+						<Input placeholder="Tên đăng nhập" />
 					</Form.Item>
 
 					<Form.Item
@@ -165,7 +267,7 @@ const Register = () => {
 							}
 						]}
 					>
-						<Input.Password />
+						<Input.Password placeholder="Nhập mật khẩu" />
 					</Form.Item>
 					<Form.Item
 						label="Xác nhận mật khẩu"
@@ -179,15 +281,15 @@ const Register = () => {
 							},
 							({ getFieldValue }) => ({
 								validator(_, value) {
-								  if (!value || getFieldValue('password') === value) {
-									return Promise.resolve();
-								  }
-								  return Promise.reject(new Error('The new password that you entered do not match!'));
+									if (!value || getFieldValue('password') === value) {
+										return Promise.resolve();
+									}
+									return Promise.reject(new Error('The new password that you entered do not match!'));
 								},
-							  }),
+							}),
 						]}
 					>
-						<Input.Password />
+						<Input.Password placeholder="Nhập lại mật khẩu" />
 					</Form.Item>
 
 					<Form.Item
@@ -200,7 +302,7 @@ const Register = () => {
 							},
 						]}
 					>
-						<Input />
+						<Input placeholder="Nhập địa chỉ" />
 					</Form.Item>
 
 					<Form.Item
@@ -213,7 +315,7 @@ const Register = () => {
 							},
 						]}
 					>
-						<Input />
+						<Input placeholder="Nhập email" />
 					</Form.Item>
 
 					<Form.Item
@@ -226,7 +328,7 @@ const Register = () => {
 							},
 						]}
 					>
-						<Input />
+						<Input placeholder="Nhập số điện thoại" />
 					</Form.Item>
 
 					<Form.Item
@@ -240,7 +342,7 @@ const Register = () => {
 						]}
 					>
 
-						<Select placeholder="Select role">
+						<Select placeholder="Chọn quyền">
 							<Option value="Admin">Admin</Option>
 							<Option value="keToan">Kế toán tổng hợp</Option>
 							<Option value="Accounting">Accounting</Option>
@@ -249,17 +351,6 @@ const Register = () => {
 							<Option value="InventoryReceiving">InventoryReceiving</Option>
 							<Option value="InventoryDelivery">InventoryDelivery</Option>
 						</Select>
-					</Form.Item>
-
-					<Form.Item
-						wrapperCol={{
-							offset: 8,
-							span: 16,
-						}}
-					>
-						<Button type="primary" htmlType="submit">
-							Submit
-						</Button>
 					</Form.Item>
 				</Form>
 			</Modal>
@@ -271,8 +362,15 @@ const Register = () => {
 					total: user?.listUser?.result?.total,
 					showTotal: (total, range) =>
 						`${range[0]}-${range[1]} of ${total} items`,
+						onChange:(PageIndex, PageSize)=>{
+							setPages({
+								...pages,
+								PageIndex: PageIndex,
+								PageSize: PageSize,
+							})
+						}
 				}}
-				onChange={(page) => handleTableChange(page)} />
+				/>
 		</>
 	);
 };
