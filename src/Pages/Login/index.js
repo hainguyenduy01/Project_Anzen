@@ -1,4 +1,4 @@
-import { Form, Input, Button, Spin } from 'antd';
+import { Form, Input, Button, Spin, Space } from 'antd';
 import { LoginService, getUserProfile } from '../../Services/LoginServices';
 import { NavLink, useNavigate } from 'react-router-dom';
 import logo from '../../assets/img/logo.png';
@@ -131,8 +131,10 @@ const Login = () => {
 							</Form.Item>
 						</Form>
 					</div>
-					<Button onClick={() => translate('en')}>EN</Button>
-					<Button onClick={() => translate('vi')}>VI</Button>
+					<Space>
+						<Button onClick={() => translate('en')}>EN</Button>
+						<Button onClick={() => translate('vi')}>VI</Button>
+					</Space>
 					<div className="footer_login pt-2">
 						<p>
 							Website giới thiệu của

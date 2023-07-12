@@ -1,17 +1,33 @@
-import { Button, Form, Space, Table, Modal, Input, Row, Col, Checkbox, InputNumber, DatePicker } from "antd";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { DateRangePicker } from "rsuite";
-import { createDriverAsync, deleteDriverAsync, exportGridDAsync, getAllDriverAsync, selectDrivers } from "../../Slice/driverSlice";
-import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
-import { FORMATS_DATE } from "../../Utils/constants";
+import {
+	Button,
+	Form,
+	Space,
+	Table,
+	Modal,
+	Input,
+	Row,
+	Col,
+	Checkbox,
+	InputNumber,
+	DatePicker,
+} from 'antd';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	createDriverAsync,
+	deleteDriverAsync,
+	exportGridDAsync,
+	getAllDriverAsync,
+	selectDrivers,
+} from '../../Slice/driverSlice';
+import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import { FORMATS_DATE } from '../../Utils/constants';
 
 const Drivers = () => {
-
 	const [form] = Form.useForm();
 	const [formSearch] = Form.useForm();
-	const [titleForm, setTitleForm] = useState("create");
+	const [titleForm, setTitleForm] = useState('create');
 	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
@@ -22,11 +38,10 @@ const Drivers = () => {
 
 	useEffect(() => {
 		dispatch(getAllDriverAsync(pages));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [getAllDriverAsync, pages]);
-	const driver = useSelector(selectDrivers)
-	const showModal = () => {
-		setIsModalOpen(true);
-	};
+	const driver = useSelector(selectDrivers);
+
 	const handleOk = () => {
 		setIsModalOpen(false);
 	};
@@ -45,13 +60,13 @@ const Drivers = () => {
 	const [driverListData, setDriverListData] = useState([]);
 	const createDriver = () => {
 		form.resetFields();
-		setTitleForm("create");
+		setTitleForm('create');
 		setIsModalOpen(true);
 		setDriverListData(driverListData?.driver?.result?.items);
-	}
+	};
 	const updateDriver = (list) => {
 		form.resetFields();
-		setTitleForm("update")
+		setTitleForm('update');
 		setIsModalOpen(true);
 		form.setFieldsValue({
 			...list,
@@ -60,130 +75,131 @@ const Drivers = () => {
 	const clearForm = () => {
 		formSearch.resetFields();
 		dispatch(getAllDriverAsync());
-	}
+	};
 
 	const showExcelModel = () => {
 		setIsModalExcelOpen(true);
-	}
+	};
 
 	const onCancelExcel = () => {
 		setIsModalExcelOpen(false);
-	}
+	};
 
 	const moveToExcel = async () => {
 		setIsModalExcelOpen(false);
 		await dispatch(exportGridDAsync(pages));
-		navigate("/export-report");
-	}
+		navigate('/export-report');
+	};
 
 	const handleCheckBox = (e) => {
 		setShowAdvancedSearch(e.taget.checked);
-	}
+	};
 
 	const columns = [
 		{
-			title: "STT",
-			dataIndex: "id",
-			key: "id",
-			render: (_, record, index) => (pages.PageIndex - 1) * pages.PageSize + index + 1,
+			title: 'STT',
+			dataIndex: 'id',
+			key: 'id',
+			render: (_, record, index) =>
+				(pages.PageIndex - 1) * pages.PageSize + index + 1,
 		},
 		{
-			title: "Tên",
-			dataIndex: "name",
-			key: "name"
+			title: 'Tên',
+			dataIndex: 'name',
+			key: 'name',
 		},
 		{
-			title: "Địa chỉ",
-			dataIndex: "address",
-			key: "address",
+			title: 'Địa chỉ',
+			dataIndex: 'address',
+			key: 'address',
 		},
 		{
-			title: "Số điện thoại",
-			dataIndex: "phone",
-			key: "phone"
+			title: 'Số điện thoại',
+			dataIndex: 'phone',
+			key: 'phone',
 		},
 		{
-			title: "Số chứng minh",
-			dataIndex: "identity",
-			key: "identity"
+			title: 'Số chứng minh',
+			dataIndex: 'identity',
+			key: 'identity',
 		},
 		{
-			title: "Bằng lái",
-			dataIndex: "drivingLicense",
-			key: "drivingLicense",
+			title: 'Bằng lái',
+			dataIndex: 'drivingLicense',
+			key: 'drivingLicense',
 		},
 		{
-			title: "Biển số xe",
-			dataIndex: "licensePlate",
-			key: "licensePlate",
+			title: 'Biển số xe',
+			dataIndex: 'licensePlate',
+			key: 'licensePlate',
 		},
 		{
-			title: "Công ty",
-			dataIndex: "company",
-			key: "company",
+			title: 'Công ty',
+			dataIndex: 'company',
+			key: 'company',
 		},
 		{
-			title: "Số điện thoại công ty",
-			dataIndex: "companyPhone",
-			key: "companyPhone",
+			title: 'Số điện thoại công ty',
+			dataIndex: 'companyPhone',
+			key: 'companyPhone',
 		},
 		{
-			title: "Số thuế công ty",
-			dataIndex: "companyTax",
-			key: "companyTax",
+			title: 'Số thuế công ty',
+			dataIndex: 'companyTax',
+			key: 'companyTax',
 		},
 		{
-			title: "Chi tiết tài xế",
-			dataIndex: "description",
-			key: "description",
+			title: 'Chi tiết tài xế',
+			dataIndex: 'description',
+			key: 'description',
 		},
 		{
-			title: "Hoạt động",
-			key: "activity",
+			title: 'Hoạt động',
+			key: 'activity',
 			render: (_, record) => (
 				<Space size="middle">
-					<button style={{ border: "none", background: "white" }} onClick={() => updateDriver(record)} ><i className="fa-solid fa-pen-to-square" style={{ color: "green" }}></i></button>
-					<button style={{ border: "none", background: "white" }} onClick={() => deleteDriver(record.id)}><i className="fa-solid fa-trash" style={{ color: "red" }}></i></button>
+					<button
+						style={{ border: 'none', background: 'white' }}
+						onClick={() => updateDriver(record)}
+					>
+						<i
+							className="fa-solid fa-pen-to-square"
+							style={{ color: 'green' }}
+						></i>
+					</button>
+					<button
+						style={{ border: 'none', background: 'white' }}
+						onClick={() => deleteDriver(record.id)}
+					>
+						<i className="fa-solid fa-trash" style={{ color: 'red' }}></i>
+					</button>
 				</Space>
 			),
 		},
 	];
 
 	const onFinishSearch = async (values) => {
-		console.log(values)
-		const a = dayjs(values.createDate[0]).format('YYYY-MM-DD');
-		const b = dayjs(values.createDate[1]).format('YYYY-MM-DD');
 		const params = {
 			...values,
 			LandingDateFrom: dayjs(values.createDate[0]).format('YYYY-MM-DD'),
 			LandingDateTo: dayjs(values.createDate[1]).format('YYYY-MM-DD'),
-		}
+		};
 		delete params.createDate;
 		await dispatch(getAllDriverAsync(params));
 		console.log(params);
-		
-	}
+	};
 
 	return (
 		<>
-			<Form
-				form={formSearch}
-				name="formSearch"
-				onFinish={onFinishSearch}>
+			<Form form={formSearch} name="formSearch" onFinish={onFinishSearch}>
 				<Row>
 					<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
-						<Form.Item
-							label="SDT Tài xế"
-							name="phone"
-							className="form__item">
+						<Form.Item label="SDT Tài xế" name="phone" className="form__item">
 							<InputNumber />
 						</Form.Item>
 					</Col>
 					<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
-						<Form.Item
-							label="Tên tài xế"
-							name="name"
-							className="form__item">
+						<Form.Item label="Tên tài xế" name="name" className="form__item">
 							<Input />
 						</Form.Item>
 					</Col>
@@ -191,7 +207,8 @@ const Drivers = () => {
 						<Form.Item
 							label="Biển số xe"
 							name="drivingLicense"
-							className="form__item">
+							className="form__item"
+						>
 							<Input />
 						</Form.Item>
 					</Col>
@@ -200,10 +217,10 @@ const Drivers = () => {
 							label="Từ ngày - Đến ngày"
 							name="createDate"
 							className="form__item"
-							initialValue={[dayjs("2022-10-01"), dayjs()]}
+							initialValue={[dayjs('2022-10-01'), dayjs()]}
 						>
 							<RangePicker
-								style={{ width: "100%" }}
+								style={{ width: '100%' }}
 								format={FORMATS_DATE.DD_MM_YYYY}
 							/>
 						</Form.Item>
@@ -250,19 +267,39 @@ const Drivers = () => {
 				<Row className="pb-3">
 					<Col xs={24} sm={18} md={18}>
 						<Space>
-							<Button onClick={clearForm} style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
+							<Button
+								onClick={clearForm}
+								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
+							>
 								Clear
 							</Button>
-							<Button onClick={showExcelModel} style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
+							<Button
+								onClick={showExcelModel}
+								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
+							>
 								Export Excel
 							</Button>
-							<Button htmlType="submit" style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
+							<Button
+								htmlType="submit"
+								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
+							>
 								Tìm kiếm
 							</Button>
-							<Button type="primary" onClick={createDriver} style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
+							<Button
+								type="primary"
+								onClick={createDriver}
+								style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
+							>
 								Thêm tài xế
 							</Button>
-							<Checkbox onChange={() => setShowAdvancedSearch((handleCheckBox) => !handleCheckBox)} values={handleCheckBox}>Tìm kiếm nâng cao</Checkbox>
+							<Checkbox
+								onChange={() =>
+									setShowAdvancedSearch((handleCheckBox) => !handleCheckBox)
+								}
+								values={handleCheckBox}
+							>
+								Tìm kiếm nâng cao
+							</Checkbox>
 						</Space>
 					</Col>
 				</Row>
@@ -298,7 +335,10 @@ const Drivers = () => {
 				</Row>
 			</Modal>
 
-			<Modal title={titleForm === "create" ? "Tạo mới KHÁCH HÀNG" : "Cập nhật KHÁCH HÀNG"}
+			<Modal
+				title={
+					titleForm === 'create' ? 'Tạo mới KHÁCH HÀNG' : 'Cập nhật KHÁCH HÀNG'
+				}
 				open={isModalOpen}
 				onOk={handleOk}
 				onCancel={handleCancel}
@@ -312,11 +352,12 @@ const Drivers = () => {
 						htmlType="submit"
 						type="primary"
 						form="form"
-						style={{ backgroundColor: "#ffbd2f", color: "#fff" }}
+						style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
 					>
 						Gửi
 					</Button>,
-				]}>
+				]}
+			>
 				<Form
 					name="form"
 					form={form}
@@ -333,14 +374,9 @@ const Drivers = () => {
 						remember: true,
 					}}
 					onFinish={onFinish}
-
 					autoComplete="off"
 				>
-					<Form.Item
-						label="STT"
-						name="id"
-						hidden={true}
-					>
+					<Form.Item label="STT" name="id" hidden={true}>
 						<Input disabled />
 					</Form.Item>
 					<Form.Item
@@ -421,40 +457,29 @@ const Drivers = () => {
 						<Input placeholder="Nhập biển số xe" />
 					</Form.Item>
 
-					<Form.Item
-						label="Công ty"
-						name="company"	
-					>
+					<Form.Item label="Công ty" name="company">
 						<Input placeholder="Nhập công ty" />
 					</Form.Item>
 
-					<Form.Item
-						label="Số điện thoại công ty"
-						name="companyPhone"	
-					>
+					<Form.Item label="Số điện thoại công ty" name="companyPhone">
 						<Input placeholder="Nhập số điện thoại công ty" />
 					</Form.Item>
 
-					<Form.Item
-						label="Số thuế công ty"
-						name="companyTax"
-					>
+					<Form.Item label="Số thuế công ty" name="companyTax">
 						<Input placeholder="Nhập số thuế công ty" />
 					</Form.Item>
 
-					<Form.Item
-						label="Chi tiết tài xế"
-						name="description"
-					>
+					<Form.Item label="Chi tiết tài xế" name="description">
 						<Input placeholder=" Nhập chi tiết tài xế" />
 					</Form.Item>
 				</Form>
 			</Modal>
-			<Table dataSource={driver?.listDriver?.result?.items}
+			<Table
+				dataSource={driver?.listDriver?.result?.items}
 				loading={driver.isLoading}
 				columns={columns}
 				pagination={{
-					size: "small",
+					size: 'small',
 					total: driver?.listDriver?.result?.total,
 					showTotal: (total, range) =>
 						`${range[0]}-${range[1]} of ${total} items`,
@@ -463,8 +488,8 @@ const Drivers = () => {
 							...pages,
 							PageIndex: PageIndex,
 							PageSize: PageSize,
-						})
-					}
+						});
+					},
 				}}
 			/>
 		</>

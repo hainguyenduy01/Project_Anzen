@@ -42,6 +42,7 @@ import ModalExcel from './components/ModalExcel';
 import ModalUpdateCreate from './components/ModalUpdateCreate';
 import ModalCode from './components/ModalCode';
 import FormSearch from './components/FormSearch';
+
 const notification = {
 	position: 'top-right',
 	autoClose: 3000,

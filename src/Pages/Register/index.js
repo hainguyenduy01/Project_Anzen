@@ -1,10 +1,26 @@
-import { Button, Form, Space, Table, Modal, Input, Row, Col, Switch, Select } from "antd";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllUserAsync, createUserAsync, selectUsers, changeUserRoleAsync, activeUserAsync } from "../../Slice/registerSlice";
-import "./Register.css";
+import {
+	Button,
+	Form,
+	Space,
+	Table,
+	Modal,
+	Input,
+	Row,
+	Col,
+	Switch,
+	Select,
+} from 'antd';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	getAllUserAsync,
+	createUserAsync,
+	selectUsers,
+	changeUserRoleAsync,
+	activeUserAsync,
+} from '../../Slice/registerSlice';
+import './Register.css';
 const Register = () => {
-
 	const { Option } = Select;
 	const [form] = Form.useForm();
 	const [roleForm] = Form.useForm();
@@ -14,8 +30,9 @@ const Register = () => {
 	const dispatch = useDispatch();
 	useEffect(() => {
 		dispatch(getAllUserAsync(pages));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [getAllUserAsync, pages]);
-	const user = useSelector(selectUsers)
+	const user = useSelector(selectUsers);
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -36,7 +53,7 @@ const Register = () => {
 		setIsRoleModalOpen(true);
 		roleForm.setFieldsValue({
 			...record,
-		})
+		});
 	};
 
 	const handleRoleCancel = () => {
@@ -47,59 +64,69 @@ const Register = () => {
 		await dispatch(changeUserRoleAsync(values));
 		dispatch(getAllUserAsync());
 		setIsRoleModalOpen(false);
-	}
+	};
 
 	const onChange = async (data) => {
 		await dispatch(activeUserAsync(data));
 		dispatch(getAllUserAsync());
-	}
-
+	};
 
 	const columns = [
 		{
-			title: "STT",
-			dataIndex: "id",
-			key: "id",
-			render: (_, record, index) => (pages.PageIndex - 1) * pages.PageSize + index + 1,
+			title: 'STT',
+			dataIndex: 'id',
+			key: 'id',
+			render: (_, record, index) =>
+				(pages.PageIndex - 1) * pages.PageSize + index + 1,
 		},
 		{
-			title: "Tên đầy đủ",
-			dataIndex: "fullName",
-			key: "fullName"
+			title: 'Tên đầy đủ',
+			dataIndex: 'fullName',
+			key: 'fullName',
 		},
 		{
-			title: "Tên tài khoản",
-			dataIndex: "userName",
-			key: "userName"
+			title: 'Tên tài khoản',
+			dataIndex: 'userName',
+			key: 'userName',
 		},
 		{
-			title: "Địa chỉ",
-			dataIndex: "address",
-			key: "address",
+			title: 'Địa chỉ',
+			dataIndex: 'address',
+			key: 'address',
 		},
 		{
-			title: "Email",
-			dataIndex: "email",
-			key: "email"
+			title: 'Email',
+			dataIndex: 'email',
+			key: 'email',
 		},
 		{
-			title: "Số điện thoại",
-			dataIndex: "phoneNumber",
-			key: "phoneNumber"
+			title: 'Số điện thoại',
+			dataIndex: 'phoneNumber',
+			key: 'phoneNumber',
 		},
 		{
-			title: "Quyền",
-			dataIndex: "roleName",
-			key: "roleName"
+			title: 'Quyền',
+			dataIndex: 'roleName',
+			key: 'roleName',
 		},
 		{
-			title: "Hoạt động",
-			dataIndex: "isActive",
-			key: "activity",
+			title: 'Hoạt động',
+			dataIndex: 'isActive',
+			key: 'activity',
 			render: (text, record) => (
 				<Space size="middle">
-					<Switch checked={text} onChange={() => onChange({ id: record.id, isActive: !record.isActive })} />
-					<Button onClick={() => showRoleModal(record)} className="ant-btn ant-btn-default ant-btn-dangerous">Sửa quyền</Button>
+					<Switch
+						checked={text}
+						onChange={() =>
+							onChange({ id: record.id, isActive: !record.isActive })
+						}
+					/>
+					<Button
+						onClick={() => showRoleModal(record)}
+						className="ant-btn ant-btn-default ant-btn-dangerous"
+					>
+						Sửa quyền
+					</Button>
 				</Space>
 			),
 		},
@@ -109,12 +136,19 @@ const Register = () => {
 		<>
 			<Row className="pe-3 mb-3">
 				<Col xs={24} sm={18} md={18}>
-					<Button type="primary" onClick={showModal} style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
+					<Button
+						type="primary"
+						onClick={showModal}
+						style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
+					>
 						Tạo mới tài khoản
 					</Button>
 				</Col>
 			</Row>
-			<Modal title="THAY ĐỔI QUYỀN" open={isRoleModalOpen} onCancel={handleRoleCancel} 
+			<Modal
+				title="THAY ĐỔI QUYỀN"
+				open={isRoleModalOpen}
+				onCancel={handleRoleCancel}
 			>
 				<Form
 					name="roleForm"
@@ -132,10 +166,9 @@ const Register = () => {
 						remember: true,
 					}}
 					autoComplete="off"
-					onFinish={onFinishRole}>
-					<Form.Item
-						name="id"
-					/>
+					onFinish={onFinishRole}
+				>
+					<Form.Item name="id" />
 
 					<Form.Item
 						label="Quyền"
@@ -147,7 +180,6 @@ const Register = () => {
 							},
 						]}
 					>
-
 						<Select>
 							<Option value="Admin">Admin</Option>
 							<Option value="keToan">Kế toán tổng hợp</Option>
@@ -170,7 +202,8 @@ const Register = () => {
 					</Form.Item>
 				</Form>
 			</Modal>
-			<Modal title="TẠO TÀI KHOẢN"
+			<Modal
+				title="TẠO TÀI KHOẢN"
 				open={isModalOpen}
 				onOk={handleOk}
 				onCancel={handleCancel}
@@ -184,11 +217,12 @@ const Register = () => {
 						htmlType="submit"
 						type="primary"
 						form="form"
-						style={{ backgroundColor: "#ffbd2f", color: "#fff" }}
+						style={{ backgroundColor: '#ffbd2f', color: '#fff' }}
 					>
 						Gửi
 					</Button>,
-				]}>
+				]}
+			>
 				<Form
 					name="form"
 					form={form}
@@ -205,14 +239,9 @@ const Register = () => {
 						remember: true,
 					}}
 					onFinish={onFinish}
-
 					autoComplete="off"
 				>
-					<Form.Item
-						label="STT"
-						name="id"
-						hidden={true}
-					>
+					<Form.Item label="STT" name="id" hidden={true}>
 						<Input disabled />
 					</Form.Item>
 					<Form.Item
@@ -262,9 +291,12 @@ const Register = () => {
 								message: 'Please input your password!',
 							},
 							{
-								pattern: new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{9,})'),
-								message: "Mật khẩu phải có ít nhất 9 kí tư, Chữ hoa, Chữ thường, và không có kí tự đặc biệt"
-							}
+								pattern: new RegExp(
+									'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{9,})',
+								),
+								message:
+									'Mật khẩu phải có ít nhất 9 kí tư, Chữ hoa, Chữ thường, và không có kí tự đặc biệt',
+							},
 						]}
 					>
 						<Input.Password placeholder="Nhập mật khẩu" />
@@ -284,7 +316,11 @@ const Register = () => {
 									if (!value || getFieldValue('password') === value) {
 										return Promise.resolve();
 									}
-									return Promise.reject(new Error('The new password that you entered do not match!'));
+									return Promise.reject(
+										new Error(
+											'The new password that you entered do not match!',
+										),
+									);
 								},
 							}),
 						]}
@@ -341,7 +377,6 @@ const Register = () => {
 							},
 						]}
 					>
-
 						<Select placeholder="Chọn quyền">
 							<Option value="Admin">Admin</Option>
 							<Option value="keToan">Kế toán tổng hợp</Option>
@@ -354,23 +389,24 @@ const Register = () => {
 					</Form.Item>
 				</Form>
 			</Modal>
-			<Table dataSource={user?.listUser?.result?.items}
+			<Table
+				dataSource={user?.listUser?.result?.items}
 				loading={user.isLoading}
 				columns={columns}
 				pagination={{
-					size: "small",
+					size: 'small',
 					total: user?.listUser?.result?.total,
 					showTotal: (total, range) =>
 						`${range[0]}-${range[1]} of ${total} items`,
-						onChange:(PageIndex, PageSize)=>{
-							setPages({
-								...pages,
-								PageIndex: PageIndex,
-								PageSize: PageSize,
-							})
-						}
+					onChange: (PageIndex, PageSize) => {
+						setPages({
+							...pages,
+							PageIndex: PageIndex,
+							PageSize: PageSize,
+						});
+					},
 				}}
-				/>
+			/>
 		</>
 	);
 };

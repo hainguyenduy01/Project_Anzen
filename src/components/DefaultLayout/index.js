@@ -12,17 +12,21 @@ import {
 	OrderedListOutlined,
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Dropdown, Layout, Menu, Space } from 'antd';
+import { Button, Dropdown, Layout, Menu, Space } from 'antd';
 import { useState } from 'react';
 import logo from '../../assets/img/logo.png';
 import './defaultLayout.css';
 import Home from '../../Pages/Home';
 import { toast } from 'react-toastify';
 import { getUserProfile } from '../../Services/LoginServices';
+import { useTranslation } from 'react-i18next';
 const { Header, Sider, Content } = Layout;
 const DefaultLayout = () => {
 	const navigate = useNavigate();
-
+	const { i18n, t } = useTranslation();
+	const translate = (lang) => {
+		i18n.changeLanguage(lang);
+	};
 	useEffect(() => {
 		getUserProfile1();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,42 +68,42 @@ const DefaultLayout = () => {
 		{
 			key: '/home',
 			icon: <HomeOutlined />,
-			label: 'Khu vực đơn hàng',
+			label: t('Khu vực đơn hàng'),
 		},
 		{
 			key: '/policy',
 			icon: <DollarOutlined />,
-			label: 'Bảng kê',
+			label: t('Bảng kê'),
 		},
 		{
 			key: '/accountant',
 			icon: <SwapOutlined />,
-			label: 'Kế toán',
+			label: t('Kế toán'),
 		},
 		{
 			key: '/customers',
 			icon: <UserOutlined />,
-			label: 'Khách hàng',
+			label: t('Khách hàng'),
 		},
 		{
 			key: '/drivers',
 			icon: <MedicineBoxOutlined />,
-			label: 'Tài xế',
+			label: t('Tài xế'),
 		},
 		{
 			key: '/reports',
 			icon: <SwapOutlined />,
-			label: 'Báo cáo',
+			label: t('Báo cáo'),
 		},
 		{
 			key: '/export-report',
 			icon: <OrderedListOutlined />,
-			label: 'Lịch sử tải xuống ',
+			label: t('Lịch sử tải xuống'),
 		},
 		{
 			key: '/register',
 			icon: <UserAddOutlined />,
-			label: 'Tạo tài khoản',
+			label: t('Tạo tài khoản'),
 		},
 	];
 
@@ -114,7 +118,7 @@ const DefaultLayout = () => {
 				>
 					<Space>
 						<LogoutOutlined />
-						<span>Logout</span>
+						<span>{t('Logout')}</span>
 					</Space>
 				</Link>
 			),
@@ -178,6 +182,13 @@ const DefaultLayout = () => {
 									},
 								},
 							)}
+							<div>
+								<span className="text-white fw-bold px-3">Ngôn ngữ :</span>
+								<Space>
+									<Button onClick={() => translate('en')}>EN</Button>
+									<Button onClick={() => translate('vi')}>VI</Button>
+								</Space>
+							</div>
 							<Dropdown menu={{ items }} className="dropdown_user">
 								<Space>
 									<UserOutlined />
