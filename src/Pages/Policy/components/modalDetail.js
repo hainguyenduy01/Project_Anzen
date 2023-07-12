@@ -7,6 +7,7 @@ const ModalDetail = (props) => {
     handleCancelCode,
     downloadCodeBill,
     isLoading,
+    columnsCodeBill,
     pages,
     setPages,
   } = props;
@@ -32,59 +33,7 @@ const ModalDetail = (props) => {
         </div>
     );
 };
-  const columnsCodeBill = [
-    {
-      title: "STT",
-      render: (_, record, index) => (pages.PageIndex - 1) * 10 + index + 1,
-    },
-    {
-      title: "MVĐ",
-      dataIndex: "code",
-      key: "code",
-    },
-    {
-      title: "Tên khách hàng",
-      dataIndex: "consignee",
-      key: "consignee",
-    },
-    {
-      title: "Tên hàng",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "quantity",
-      key: "quantity",
-    },
-    {
-      title: "Nơi giao",
-      dataIndex: "toAddress",
-      key: "toAddress",
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "consigneePhone",
-      key: "consigneePhone",
-    },
-    {
-      title: "Hình thức thu tiền",
-      dataIndex: "paymentType",
-      key: "paymentType",
-      align: "center",
-    },
-    {
-      title: "Số tiền lái xe thu",
-      dataIndex: "cod",
-      key: "cod",
-      align: "center",
-    },
-    {
-      title: "Số tiền",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
-    },
-  ];
+  
   return (
     <Modal
       title={`BẢNG KÊ GIAO NHẬN VẬN CHUYỂN --- ${detailCode?.result?.code}`}
