@@ -13,7 +13,7 @@
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",
     "content-disposition": "^0.5.4",
-    "dayjs": "^1.11.8",
+    "dayjs": "^1.11.9",
     "i18next": "^23.2.8",
     "i18next-browser-languagedetector": "^7.1.0",
     "moment": "^2.29.4",
