@@ -1,9 +1,11 @@
-import { Button, Form, Space, Table, Modal, Input, Row, Col } from "antd";
+import { Button, Form, Space, Table, Modal, Input, Row, Col, Checkbox, InputNumber, DatePicker } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DateRangePicker } from "rsuite";
 import { createDriverAsync, deleteDriverAsync, exportGridDAsync, getAllDriverAsync, selectDrivers } from "../../Slice/driverSlice";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
+import { FORMATS_DATE } from "../../Utils/constants";
 
 const Drivers = () => {
 
@@ -12,9 +14,11 @@ const Drivers = () => {
 	const [titleForm, setTitleForm] = useState("create");
 	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 	const [isModalExcelOpen, setIsModalExcelOpen] = useState(false);
 	const [pages, setPages] = useState({ PageIndex: 1, PageSize: 10 });
 	const dispatch = useDispatch();
+	const { RangePicker } = DatePicker;
 
 	useEffect(() => {
 		dispatch(getAllDriverAsync(pages));
@@ -53,8 +57,9 @@ const Drivers = () => {
 			...list,
 		});
 	};
-	const clearForm = (values) => {
+	const clearForm = () => {
 		formSearch.resetFields();
+		dispatch(getAllDriverAsync());
 	}
 
 	const showExcelModel = () => {
@@ -69,6 +74,10 @@ const Drivers = () => {
 		setIsModalExcelOpen(false);
 		await dispatch(exportGridDAsync(pages));
 		navigate("/export-report");
+	}
+
+	const handleCheckBox = (e) => {
+		setShowAdvancedSearch(e.taget.checked);
 	}
 
 	const columns = [
@@ -141,13 +150,18 @@ const Drivers = () => {
 	];
 
 	const onFinishSearch = async (values) => {
+		console.log(values)
+		const a = dayjs(values.createDate[0]).format('YYYY-MM-DD');
+		const b = dayjs(values.createDate[1]).format('YYYY-MM-DD');
 		const params = {
 			...values,
-			pageIndex: 1,
-			pageSize: 10,
-			dateSearch: undefined,
-		};
-		setPages(params);
+			LandingDateFrom: dayjs(values.createDate[0]).format('YYYY-MM-DD'),
+			LandingDateTo: dayjs(values.createDate[1]).format('YYYY-MM-DD'),
+		}
+		delete params.createDate;
+		await dispatch(getAllDriverAsync(params));
+		console.log(params);
+		
 	}
 
 	return (
@@ -162,7 +176,7 @@ const Drivers = () => {
 							label="SDT Tài xế"
 							name="phone"
 							className="form__item">
-							<Input />
+							<InputNumber />
 						</Form.Item>
 					</Col>
 					<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
@@ -181,7 +195,58 @@ const Drivers = () => {
 							<Input />
 						</Form.Item>
 					</Col>
+					<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+						<Form.Item
+							label="Từ ngày - Đến ngày"
+							name="createDate"
+							className="form__item"
+							initialValue={[dayjs("2022-10-01"), dayjs()]}
+						>
+							<RangePicker
+								style={{ width: "100%" }}
+								format={FORMATS_DATE.DD_MM_YYYY}
+							/>
+						</Form.Item>
+					</Col>
 				</Row>
+				{showAdvancedSearch && (
+					<Row>
+						<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+							<Form.Item
+								label="Số chứng minh"
+								name="identity"
+								className="form__item"
+								values="number"
+							>
+								<InputNumber />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+							<Form.Item label="Công ty" name="company" className="form__item">
+								<Input />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+							<Form.Item
+								label="SĐT công ty"
+								name="companyPhone"
+								className="form__item"
+								values="number"
+							>
+								<InputNumber />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12} md={6} className="pe-3 mb-3">
+							<Form.Item
+								label="Số thuế công ty"
+								name="companyTax"
+								className="form__item"
+							>
+								<Input />
+							</Form.Item>
+						</Col>
+					</Row>
+				)}
 				<Row className="pb-3">
 					<Col xs={24} sm={18} md={18}>
 						<Space>
@@ -197,6 +262,7 @@ const Drivers = () => {
 							<Button type="primary" onClick={createDriver} style={{ backgroundColor: "#ffbd2f", color: "#fff" }}>
 								Thêm tài xế
 							</Button>
+							<Checkbox onChange={() => setShowAdvancedSearch((handleCheckBox) => !handleCheckBox)} values={handleCheckBox}>Tìm kiếm nâng cao</Checkbox>
 						</Space>
 					</Col>
 				</Row>
@@ -232,10 +298,11 @@ const Drivers = () => {
 				</Row>
 			</Modal>
 
-			<Modal title="Thêm tài xế"
+			<Modal title={titleForm === "create" ? "Tạo mới KHÁCH HÀNG" : "Cập nhật KHÁCH HÀNG"}
 				open={isModalOpen}
 				onOk={handleOk}
 				onCancel={handleCancel}
+				width={1000}
 				footer={[
 					<Button key="cancel" onClick={handleCancel}>
 						Đóng
@@ -260,7 +327,7 @@ const Drivers = () => {
 						span: 16,
 					}}
 					style={{
-						maxWidth: 600,
+						maxWidth: 800,
 					}}
 					initialValues={{
 						remember: true,
@@ -356,26 +423,14 @@ const Drivers = () => {
 
 					<Form.Item
 						label="Công ty"
-						name="company"
-						rules={[
-							{
-								required: true,
-								message: 'Please input your company license!',
-							},
-						]}
+						name="company"	
 					>
 						<Input placeholder="Nhập công ty" />
 					</Form.Item>
 
 					<Form.Item
 						label="Số điện thoại công ty"
-						name="companyPhone"
-						rules={[
-							{
-								required: true,
-								message: 'Please input your company phone!',
-							},
-						]}
+						name="companyPhone"	
 					>
 						<Input placeholder="Nhập số điện thoại công ty" />
 					</Form.Item>
@@ -383,12 +438,6 @@ const Drivers = () => {
 					<Form.Item
 						label="Số thuế công ty"
 						name="companyTax"
-						rules={[
-							{
-								required: true,
-								message: 'Please input your company tax!',
-							},
-						]}
 					>
 						<Input placeholder="Nhập số thuế công ty" />
 					</Form.Item>
