@@ -335,60 +335,6 @@ const Policy = () => {
 			),
 		},
 	];
-	const columnsCodeBill = [
-		{
-			title: 'STT',
-			render: (_, record, index) => (pages.PageIndex - 1) * 10 + index + 1,
-		},
-		{
-			title: 'MVĐ',
-			dataIndex: 'code',
-			key: 'code',
-			render: (code, record) => showCode(code, record),
-		},
-		{
-			title: 'Tên khách hàng',
-			dataIndex: 'consignee',
-			key: 'consignee',
-		},
-		{
-			title: 'Tên hàng',
-			dataIndex: 'name',
-			key: 'name',
-		},
-		{
-			title: 'Số lượng',
-			dataIndex: 'quantity',
-			key: 'quantity',
-		},
-		{
-			title: 'Nơi giao',
-			dataIndex: 'toAddress',
-			key: 'toAddress',
-		},
-		{
-			title: 'Số điện thoại',
-			dataIndex: 'consigneePhone',
-			key: 'consigneePhone',
-		},
-		{
-			title: 'Hình thức thu tiền',
-			dataIndex: 'paymentType',
-			key: 'paymentType',
-			align: 'center',
-		},
-		{
-			title: 'Số tiền lái xe thu',
-			dataIndex: 'cod',
-			key: 'cod',
-			align: 'center',
-		},
-		{
-			title: 'Số tiền',
-			dataIndex: 'totalAmount',
-			key: 'totalAmount',
-		},
-	];
 
 	const columnsProduct = [
 		{
@@ -484,28 +430,7 @@ const Policy = () => {
 			),
 		},
 	];
-	const footerTableCodeBill = () => {
-		return (
-			<div>
-				<Row className="my-3">
-					<Col xs={24} md={18} className="text-end">
-						<strong>Tổng cộng</strong>
-					</Col>
-					<Col xs={24} md={6} className="text-center">
-						<span>{detailCode?.result?.totalCOD}</span>
-					</Col>
-				</Row>
-				<Row className="my-3">
-					<Col xs={24} md={18} className="text-end">
-						<strong>Đã tạm ứng</strong>
-					</Col>
-					<Col xs={24} md={6} className="text-center">
-						<span>{detailCode?.result?.advanceAmount}</span>
-					</Col>
-				</Row>
-			</div>
-		);
-	};
+
 	return (
 		<Spin tip="Loading..." spinning={isLoading}>
 			<Tabs activeKey={activeTab} onChange={handleTabChange}>
@@ -702,15 +627,15 @@ const Policy = () => {
 								</Col>
 							</Row>
 						</Modal>
-						<ModalDetail 
-						 detailCode={detailCode}
-						 columnsCodeBill={columnsCodeBill}
-						 isModalOpenCode={isModalOpenCode}
-						 handleCancelCode={handleCancelCode}
-						 downloadCodeBill={downloadCodeBill}
-						 isLoading={isLoading}
-						 pages={pages}
-						 setPages={setPages}/>
+						<ModalDetail
+							detailCode={detailCode}
+							isModalOpenCode={isModalOpenCode}
+							handleCancelCode={handleCancelCode}
+							downloadCodeBill={downloadCodeBill}
+							isLoading={isLoading}
+							pages={pages}
+							setPages={setPages}
+						/>
 						{/* Modal Image */}
 						<Modal
 							title="THÔNG TIN HÌNH ẢNH"
