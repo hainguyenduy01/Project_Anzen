@@ -344,6 +344,7 @@ const Policy = () => {
 			title: 'MVĐ',
 			dataIndex: 'code',
 			key: 'code',
+			render: (code, record) => showCode(code, record),
 		},
 		{
 			title: 'Tên khách hàng',
@@ -703,6 +704,7 @@ const Policy = () => {
 						</Modal>
 						<ModalDetail 
 						 detailCode={detailCode}
+						 columnsCodeBill={columnsCodeBill}
 						 isModalOpenCode={isModalOpenCode}
 						 handleCancelCode={handleCancelCode}
 						 downloadCodeBill={downloadCodeBill}

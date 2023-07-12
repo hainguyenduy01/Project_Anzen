@@ -17,3 +17,19 @@ export const getDetailBillOfLadingsService = (id) => {
 		},
 	);
 };
+export const getAccountingService = (id) => {
+	return request(
+		`https://api-uat-anzen-tms.azurewebsites.net/api/DeliveryOrders/accounting/${id}`,
+		{
+			method: 'GET',
+		},
+	);
+};
+export const updateCompletedAccountingService = (id) => {
+	return request(
+		`ttps://api-uat-anzen-tms.azurewebsites.net/api/BillOfLadings/mark-done/${id}`,
+		{
+			method: 'POST',
+		},
+	);
+};

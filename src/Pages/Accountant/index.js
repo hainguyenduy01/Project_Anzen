@@ -6,9 +6,7 @@ import {
   Form,
   Input,
   InputNumber,
-  Modal,
   Row,
-  Select,
   Space,
   Spin,
   Table,
@@ -23,9 +21,10 @@ import {
 } from "../../Slice/AccountantSlice";
 import { FORMATS_DATE } from "../../Utils/constants";
 import dayjs from "dayjs";
-import { getDetailAccounting, selectOrder } from "../../Slice/orderSlice";
 import { downloadCodeBillAsync } from "../../Slice/policySlice";
 import ModalDetail from "../Accountant/components/modalDetail";
+import ModalDetail2 from "./components/modalDetail2";
+import { getDetailAccounting } from "../../Slice/orderSlice";
 
 const Accountant = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
@@ -41,19 +40,14 @@ const Accountant = () => {
   useEffect(() => {
     dispatch(getBillOfLadingsAsync(pages));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages]);
+  }, [getBillOfLadingsAsync, pages]);
   const listAccountant = useSelector(selectBillOfLading);
-  const { detailCode } = listAccountant;
+  const { detailCode, detailAccounting, isLoading } = listAccountant;
   console.log(listAccountant);
-  const { isLoading } = listAccountant;
-  const detailBillOfLadings = listAccountant?.listAccount?.result;
+  // const detailBillOfLadings = listAccountant?.listAccount?.result;
   // console.log(detailBillOfLadings);
+  // console.log(detailAccounting);
 
-  const order = useSelector(selectOrder);
-  console.log(order);
-
-  const detailAccounting = order?.listAccounting?.result;
-  // console.log(detailAccounting)
 
   const downloadCodeBill = async (id) => {
     setIsModalOpenCode(false);
@@ -63,7 +57,7 @@ const Accountant = () => {
     {
       title: "STT",
       dataIndex: "id",
-      key: "id",
+      key: "index",
       render: (_, record, index) => (pages.PageIndex - 1) * 10 + index + 1,
     },
     {
@@ -103,15 +97,16 @@ const Accountant = () => {
       title: "Thao tác",
       dataIndex: "isDone",
       key: "isDone",
-      render: (text, record, id) => showIsDone(record, id),
+      render: (text, record) => showIsDone(record),
       align: "center",
     },
   ];
+
   const columnsAccounting = [
     {
       title: "STT",
-      dataIndex: "id",
-      key: "index",
+      dataIndex: "deliveryOrderId",
+      key: "id",
       render: (_, record, index) => <p>{index + 1}</p>,
     },
     {
@@ -217,19 +212,19 @@ const Accountant = () => {
   const columnsFreight = [
     {
       title: "Tên công ty",
-      dataIndex: "ladingInfos",
-      key: "ladingInfos",
+      dataIndex: "description",
+      key: "description",
     },
     {
       title: "Phí",
-      dataIndex: "freightFees",
-      key: "freightFees",
+      dataIndex: "fee",
+      key: "fee",
     },
     {
       title: "Thao tác",
       dataIndex: "EditFreight",
       key: "EditFreight",
-      // render: () => ,
+      render: () => <Button>Edit</Button>,
       align: "center",
     },
   ];
@@ -267,7 +262,7 @@ const Accountant = () => {
       title: "Thao tác",
       dataIndex: "EditOrther",
       key: "EditOrther",
-      // render: () => ,
+      // render: () => <Button>Edit</Button>,
       align: "center",
     },
   ];
@@ -309,19 +304,22 @@ const Accountant = () => {
     },
   ];
   const showIsDone = (record) => {
+    // console.log(record.isDone)
+    // console.log(record.id)
     return record.isDone === true ? (
       ""
     ) : (
-      <Button onClick={() => onChangeActive(record.id)}>Hoàn thành</Button>
+      <Button onClick={() => onChangeActive(record)}>Hoàn thành</Button>
     );
   };
   const onChangeActive = (record) => {
     const params = {
       id: record.id,
-      isDone: true,
+      isDone: !record.isDone,
     };
-    console.log("3", params);
-    // dispatch(getBillOfLadingsAsync(params));
+    // console.log("3", params);
+
+    dispatch(getBillOfLadingsAsync(params));
   };
   const handleCheckbox = (e) => {
     setShowAdvancedSearch(e.target.checked);
@@ -348,7 +346,7 @@ const Accountant = () => {
       <Tag color="#E61134" />
     ) : (
       <Tag
-        onClick={() => getDetailCode2(record.id)}
+        onClick={() => getDetailCode2(record.deliveryOrderId)}
         className="tag_code"
         color="#E61134"
       >
@@ -362,13 +360,16 @@ const Accountant = () => {
   const handleCancelCode2 = () => {
     setIsModalOpenCode2(false);
   };
-  const getDetailCode = async (id) => {
-    await dispatch(getDetailBillOfLadings(id));
+  const getDetailCode = async (deliveryOrderId) => {
+    await dispatch(getDetailBillOfLadings(deliveryOrderId));
     setIsModalOpenCode(true);
   };
   const getDetailCode2 = async (id) => {
+    console.log(id)
     await dispatch(getDetailAccounting(id));
     setIsModalOpenCode2(true);
+    setIsModalOpenCode(false);
+
   };
   const onFinishSearch = async (values) => {
     if (
@@ -526,13 +527,26 @@ const Accountant = () => {
       <ModalDetail
         detailCode={detailCode}
         isModalOpenCode={isModalOpenCode}
+        columnsCodeBill={columnsAccounting}
         handleCancelCode={handleCancelCode}
         downloadCodeBill={downloadCodeBill}
         isLoading={isLoading}
         pages={pages}
         setPages={setPages}
       />
-      <Modal
+      <ModalDetail2
+        detailAccounting={detailAccounting}
+        isModalOpenCode={isModalOpenCode2}
+        handleCancelCode={handleCancelCode2}
+        isloading={isLoading}
+        columnsQuantityAccounting={columnsQuantityAccounting}
+        columnsTransborder={columnsTransborder}
+        columnsReceiving={columnsReceiving}
+        columnsFreight={columnsFreight}
+        columnsOther={columnsOther}
+        columnsDrivers={columnsDrivers}
+      />
+      {/* <Modal
         getContainer={false}
         title={`BẢNG KÊ GIAO NHẬN VẬN CHUYỂN ---- ${detailBillOfLadings?.code}`}
         open={isModalOpenCode}
@@ -625,7 +639,7 @@ const Accountant = () => {
           <Col span={8}>
             <Space>
               <strong>Tổng cước cho xe:</strong>
-              <span>{detailBillOfLadings?.totalCOD.toLocaleString("en")}</span>
+              <span>{detailBillOfLadings?.totalCOD}</span>
             </Space>
           </Col>
         </Row>
@@ -656,7 +670,7 @@ const Accountant = () => {
               <Space>
                 <strong>Tổng cộng:</strong>
                 <span>
-                  {detailBillOfLadings?.totalCOD.toLocaleString("en")}
+                  {detailBillOfLadings?.totalCOD}
                 </span>
               </Space>
             </Col>
@@ -668,7 +682,7 @@ const Accountant = () => {
               <Space>
                 <strong>Đã tạm ứng:</strong>
                 <span>
-                  {detailBillOfLadings?.advanceAmount.toLocaleString("en")}
+                  {detailBillOfLadings?.advanceAmount}
                 </span>
               </Space>
             </Col>
@@ -676,8 +690,8 @@ const Accountant = () => {
         </div>
 
         <br />
-      </Modal>
-      <Modal
+      </Modal> */}
+      {/* <Modal
         getContainer={false}
         title="BIÊN NHẬN VẬN CHUYỂN"
         open={isModalOpenCode2}
@@ -741,13 +755,13 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Địa chỉ gửi:</strong>
-              {/* <span>{detailAccounting?.fromAddress}</span> */}
+              <span>{detailAccounting?.fromAddress}</span>
             </Space>
           </Col>
           <Col span={12}>
             <Space>
               <strong>Địa chỉ nhận:</strong>
-              {/* <span>{detailAccounting?.toAddress}</span> */}
+              <span>{detailAccounting?.toAddress}</span>
             </Space>
           </Col>
         </Row>
@@ -755,7 +769,7 @@ const Accountant = () => {
           <Col span={12}>
             <Space>
               <strong>Số điện thoại gửi:</strong>
-              {/* <span>{detailAccounting?.shipperPhone}</span> */}
+              <span>{detailAccounting?.shipperPhone}</span>
             </Space>
           </Col>
           <Col span={12}>
@@ -835,8 +849,8 @@ const Accountant = () => {
                 showSearch
                 placeholder="Chọn loại phí"
                 optionFilterProp="children"
-                // onChange={onChange}
-                // onSearch={onSearch}
+                onChange={onChange}
+                onSearch={onSearch}
                 filterOption={(input, option) =>
                   (option?.label ?? "")
                     .toLowerCase()
@@ -876,10 +890,10 @@ const Accountant = () => {
             <Table
               rowKey={(record) => record.id}
               columns={columnsTransborder}
-              // dataSource={
-              // 	detailAccounting?.ladingInfos &&
-              // 	detailAccounting?.transborderFees
-              // }
+              dataSource={
+              	detailAccounting?.ladingInfos &&
+              	detailAccounting?.transborderFees
+              }
             />
           </Col>
         </Row>
@@ -890,10 +904,10 @@ const Accountant = () => {
             <Table
               rowKey={(record) => record.id}
               columns={columnsReceiving}
-              // dataSource={
-              // 	detailAccounting?.ladingInfos &&
-              // 	detailAccounting?.receivingFees
-              // }
+              dataSource={
+              	detailAccounting?.ladingInfos &&
+              	detailAccounting?.receivingFees
+              }
             />
           </Col>
         </Row>
@@ -904,10 +918,10 @@ const Accountant = () => {
             <Table
               rowKey={(record) => record.id}
               columns={columnsFreight}
-              // dataSource={
-              // 	detailAccounting?.ladingInfos &&
-              // 	detailAccounting?.freightFees
-              // }
+              dataSource={
+              	detailAccounting?.ladingInfos &&
+              	detailAccounting?.freightFees
+              }
             />
           </Col>
         </Row>
@@ -918,9 +932,9 @@ const Accountant = () => {
             <Table
               rowKey={(record) => record.id}
               columns={columnsOther}
-              // dataSource={
-              // detailAccounting?.ladingInfos && detailAccounting?.otherFees
-              // }
+              dataSource={
+              detailAccounting?.ladingInfos && detailAccounting?.otherFees
+              }
             />
           </Col>
         </Row>
@@ -931,7 +945,7 @@ const Accountant = () => {
             <Table
               rowKey={(record) => record.id}
               columns={columnsDrivers}
-              // dataSource={listAccountant?.listAccount?.result}
+              dataSource={listAccountant?.listAccount?.result}
             />
           </Col>
         </Row>
@@ -944,7 +958,7 @@ const Accountant = () => {
             <Checkbox></Checkbox>
           </Col>
         </Row>
-      </Modal>
+      </Modal> */}
       <Table
         dataSource={listAccountant?.listA?.result?.items}
         loading={listAccountant?.isLoading}
